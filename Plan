@@ -1,5 +1,25 @@
-# 3D Maze 112
+3D Maze 112
 
-# Eller's algorithm is much faster
-# Kruscal and prim's algorithm
+Project Proposal
+Project Description: 3D Maze game
+The project is a maze, except for the fact that you can also traverse up and down while you are in the maze. The player will be able to navigate through the maze by looking at the cross-sectional view from where the person is in the maze currently.
+
+Competitive Analysis
+On the internet, there were minimal projects about a playable 3d maze where you can traverse up and down. Most of it was just a maze in a 3d first person view. There is some algorithms and examples for generating a 3d maze, but there wasn’t any playable 3d maze online. 
+
+Structural Plan
+The project will be separated into many different files, the main file, the block class file, the maze generation file and the views file. 
+
+Algorithmic Plan
+The most complex section of the project is to generate the 3d maze. I will use Eller’s algorithm as it is the fastest maze generating algorithm and will start by trying to generate a 2d maze first. 
+
+Version Control Plan
+I will back up my code using git, and will store the multiple versions of my code on github.
+
+Module List
+I will not use any modules until I reach MVP
+
+
+Eller's algorithm is much faster
+Kruscal and prim's algorithm
 
