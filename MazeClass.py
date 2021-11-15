@@ -1,4 +1,4 @@
-import random
+import random, math
 
 # from 112 notes
 def repr2dList(L):
@@ -46,7 +46,8 @@ class Maze(object):
     # Eller's method
     # https://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm
 
-    def ellerGenerateMaze(self):
+    # a funciton to test all function in the maze
+    def testGenerateMaze(self):
         self.firstRow()
         # print(self.allSets)
         self.joinAdjacentCells()
@@ -64,8 +65,29 @@ class Maze(object):
         self.joinAdjacentCells()
         self.increaseVertically()
         self.addNewSets()
+        self.joinAdjacentCells()
+        self.increaseVertically()
+        self.addNewSets()
+        self.joinAdjacentCells()
+        self.increaseVertically()
+        self.addNewSets()
+        self.lastRow()
         self.mapToBoard()
         print2dList(self.board)
+    
+    # actually generate a maze
+    def generateMaze(self):
+        self.firstRow()
+        # minus 1 because the first row is already made
+        # and the last row is joined seperately
+        for i in range(self.col - 1):
+            self.joinAdjacentCells()
+            self.increaseVertically()
+            self.addNewSets()
+        self.lastRow()
+        self.mapToBoard()
+        print2dList(self.board)
+    # at 11/15/2021 12:58 (now 59), I finished generating a layer of maze
     
     # insert walls of 1 in between the zeros
     # the one's are walls and the 0 are paths
@@ -117,21 +139,28 @@ class Maze(object):
     # randomly join adjacent cells if they are not in the same set
     def joinAdjacentCells(self):
         for numCol in range(self.col - 1):
-            shouldCombine = random.randint(1, 2) <= 2
+            shouldCombine = (
+                random.randint(1, self.col) <= math.sqrt(self.col) + 1)
+            # from the future, why did I use b?
             b1 = (self.numRow, numCol)
             b2 = (self.numRow, numCol + 1)
             if shouldCombine and (not self.inSameSet(b1, b2)):
                 print(self.numRow, "combined")
-                s1 = self.findSet(b1)
-                s2 = self.findSet(b2)
-                ns = self.combineSets(s1, s2)
-                self.allSets.remove(s1)
-                self.allSets.remove(s2)
-                self.allSets.append(ns)
-                # add to dictionary if they merged
-                self.map[b1].add(b2)
-                self.map[b2].add(b1)
+                self.mergeSets(b1, b2)
         print(self.map)
+    
+    # to merge a two sets horizontally
+    def mergeSets(self, b1, b2):
+        s1 = self.findSet(b1)
+        s2 = self.findSet(b2)
+        ns = self.combineSets(s1, s2)
+        self.allSets.remove(s1)
+        self.allSets.remove(s2)
+        self.allSets.append(ns)
+        # add to dictionary if they merged
+        self.map[b1].add(b2)
+        self.map[b2].add(b1)
+
     # find the set that the coordinate is in
     def findSet(self, coordinate):
         for theSets in self.allSets:
@@ -157,23 +186,36 @@ class Maze(object):
         count = 0
         for theSets in self.allSets:
             storage = set()
+            print("theSets:" + str(theSets))
+            newPoints = self.numPointsNewRow(theSets)
+            print("newPoints: " + str(newPoints))
             for coordinates in theSets:
-                shouldIncrease = random.randint(1, 2) == 1
-                # if it is on the last point in the set and havent 
-                # increased yet, force it to increase
-                if count == len(theSets) - 1:
-                    shouldIncrease = True
-                if len(theSets) == 1 or shouldIncrease:
-                    y1, x1 = coordinates
-                    newCoord = (y1 + 1, x1)
-                    # first store all new sets to append later together
-                    storage.add(newCoord)
-                    # add to the dictionary
-                    self.map[newCoord] = set()
-                    self.map[coordinates].add(newCoord)
-                    self.map[newCoord].add(coordinates)
-                else:
-                    count += 1
+                y, x = coordinates
+                # only loop through the coordinates that is in the same number of row
+                if y == self.numRow:
+                    shouldIncrease = random.randint(1, 3) == 1
+                    # if it is on the last point in the set and havent 
+                    # increased yet, force it to increase
+                    if count == newPoints - 1:
+                        shouldIncrease = True
+                    if len(theSets) == 1 or shouldIncrease:
+                        y1, x1 = coordinates
+                        newCoord = (y1 + 1, x1)
+                        # first store all new sets to append later together
+                        storage.add(newCoord)
+                        # add to the dictionary
+                        self.map[newCoord] = set()
+                        self.map[coordinates].add(newCoord)
+                        self.map[newCoord].add(coordinates)
+                    else:
+                        count += 1
+            # after looping through all the nodes in the set, 
+            # find the node that has the least number of connections 
+            # and increase that node vertically
+            # right now it will just increase at the end, I can change it later
+            # or just change it when I code the 3D maze part
+            # anyways, I'm almost done, just the last row and clean up the main to go
+
             theSets = self.combineSets(theSets, storage)
         # increase the row that we are on after increasing vertically
         self.numRow += 1
@@ -187,9 +229,50 @@ class Maze(object):
                 newSet.add((self.numRow, x))
                 self.allSets.append(newSet)
                 self.map[(self.numRow, x)] = set()
+    
+    # gets the number of points in the new row
+    def numPointsNewRow(self, theSets):
+        count = 0
+        for coord in theSets:
+            y, x = coord
+            if self.numRow == y:
+                count += 1
+        return count
+
+    # problem now
+    # some lines simply will not increase vertically
+    # should find the path that has the least adjacent nodes and force it to increase
+
+    # returns the node in a set that has the least adjacent paths connected to it
+    def leastAdjacentNode(self, theSet):
+        bestNode = None
+        bestConnections = 10
+        for nodes in theSet:
+            connections = len(self.map[nodes])
+            if bestNode == None or connections < bestConnections:
+                bestNode = nodes
+        return bestNode
 
     # if reach the last row, join all remaining cells that does not share a set
+    # by looping through all the points in the last row,
+    # checks if they are in the same set, if not, combine them and make them connected
+    def lastRow(self):
+        for i in range(self.col - 1):
+            n1 = (self.numRow, i)
+            n2 = (self.numRow, i + 1)
+            if not self.inSameSet(n1, n2):
+                self.mergeSets(n1, n2)
 
+testMaze = Maze(10, 10, 100)
+testMaze.generateMaze()
 
-testMaze = Maze(5, 5, 100)
-testMaze.ellerGenerateMaze()
+# new problem to test the 3D maze
+# how will I even know if the make is working
+# should first make a backtracking to find the solution?
+# otherwise can maybe try with a tini tiny maze, like 3 x 3 or 4 x 4
+
+# the next line was the 250th code when I typed it, though now it is not
+# the 250th line code reached on 11/15/2021, 12:45 AM CELEBRATION!
+# though many ahem, majority of the lines are comments and spaces
+# btw, adding random comments in the code is fun, and it makes it seem 
+# like I did so much, when I did not
