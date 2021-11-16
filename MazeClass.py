@@ -1,4 +1,5 @@
 import random, math
+from cmu_112_graphics import*
 
 # from 112 notes
 def repr2dList(L):
@@ -183,12 +184,12 @@ class Maze(object):
 
     # randomly add vertial coordinates to the new set
     def increaseVertically(self):
-        count = 0
         for theSets in self.allSets:
             storage = set()
-            print("theSets:" + str(theSets))
+            count = 0
+            # print("theSets:" + str(theSets))
             newPoints = self.numPointsNewRow(theSets)
-            print("newPoints: " + str(newPoints))
+            # print("newPoints: " + str(newPoints))
             for coordinates in theSets:
                 y, x = coordinates
                 # only loop through the coordinates that is in the same number of row
@@ -243,6 +244,7 @@ class Maze(object):
     # some lines simply will not increase vertically
     # should find the path that has the least adjacent nodes and force it to increase
 
+
     # returns the node in a set that has the least adjacent paths connected to it
     def leastAdjacentNode(self, theSet):
         bestNode = None
@@ -265,6 +267,7 @@ class Maze(object):
 
 testMaze = Maze(10, 10, 100)
 testMaze.generateMaze()
+
 
 # new problem to test the 3D maze
 # how will I even know if the make is working
