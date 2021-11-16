@@ -28,6 +28,10 @@ def repr2dList(L):
 def print2dList(L):
     print(repr2dList(L))
 
+def print3dList(L):
+    for layer in L:
+        print2dList(layer)
+
 class Maze(object):
     def __init__(self, row, col, size):
         self.row = row
@@ -141,7 +145,7 @@ class Maze(object):
     def joinAdjacentCells(self):
         for numCol in range(self.col - 1):
             shouldCombine = (
-                random.randint(1, self.col) <= math.sqrt(self.col) + 1)
+                random.randint(1, 3) <= 2)
             # from the future, why did I use b?
             b1 = (self.numRow, numCol)
             b2 = (self.numRow, numCol + 1)
@@ -194,12 +198,12 @@ class Maze(object):
                 y, x = coordinates
                 # only loop through the coordinates that is in the same number of row
                 if y == self.numRow:
-                    shouldIncrease = random.randint(1, 3) == 1
+                    shouldIncrease = random.randint(1, 3) <= 2
                     # if it is on the last point in the set and havent 
                     # increased yet, force it to increase
-                    if count == newPoints - 1:
-                        shouldIncrease = True
-                    if len(theSets) == 1 or shouldIncrease:
+                    # if count == newPoints - 1:
+                    #     shouldIncrease = True
+                    if shouldIncrease:
                         y1, x1 = coordinates
                         newCoord = (y1 + 1, x1)
                         # first store all new sets to append later together
@@ -208,14 +212,29 @@ class Maze(object):
                         self.map[newCoord] = set()
                         self.map[coordinates].add(newCoord)
                         self.map[newCoord].add(coordinates)
+                        print(str(self.numRow) + " increased")
                     else:
                         count += 1
             # after looping through all the nodes in the set, 
             # find the node that has the least number of connections 
             # and increase that node vertically
-            # right now it will just increase at the end, I can change it later
-            # or just change it when I code the 3D maze part
-            # anyways, I'm almost done, just the last row and clean up the main to go
+            # 412-530-4700
+            # print(self.map)
+            # print(theSets)
+            # print(f'numRow : {self.numRow}, count: {count}, newPoints: {newPoints}')
+            # print(self.leastAdjacentNode(theSets))
+
+            if count == newPoints:
+                currCord = self.leastAdjacentNode(theSets)
+                y1, x1 = currCord
+                newCoord = (y1 + 1, x1)
+                # first store all new sets to append later together
+                storage.add(newCoord)
+                # add to the dictionary
+                self.map[newCoord] = set()
+                self.map[currCord].add(newCoord)
+                self.map[newCoord].add(currCord)
+            
 
             theSets = self.combineSets(theSets, storage)
         # increase the row that we are on after increasing vertically
@@ -251,8 +270,11 @@ class Maze(object):
         bestConnections = 10
         for nodes in theSet:
             connections = len(self.map[nodes])
-            if bestNode == None or connections < bestConnections:
-                bestNode = nodes
+            y, x = nodes
+            if y == self.numRow:
+                if bestNode == None or connections < bestConnections:
+                    bestNode = nodes
+                    bestConnections = connections
         return bestNode
 
     # if reach the last row, join all remaining cells that does not share a set
