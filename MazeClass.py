@@ -265,7 +265,7 @@ class Maze(object):
             if not self.inSameSet(n1, n2):
                 self.mergeSets(n1, n2)
 
-testMaze = Maze(10, 10, 100)
+testMaze = Maze(3, 3, 100)
 testMaze.generateMaze()
 
 
@@ -279,3 +279,116 @@ testMaze.generateMaze()
 # though many ahem, majority of the lines are comments and spaces
 # btw, adding random comments in the code is fun, and it makes it seem 
 # like I did so much, when I did not
+
+
+# note for 3D
+# for board[k][j][i], k is the number of layer, j is the number of row
+# i is the number of elements in the row
+class threeDMaze(Maze):
+    def __init__(self, row, col, height, size):
+        self.row = row
+        self.col = col
+        self.height = height
+        self.board = []
+        for i in range(self.height * 2 + 1):
+            store = []
+            for j in range(self.row * 2 + 1):
+                store.append([0] * (self.col * 2 + 1))
+            self.board.append(store)
+        self.size = size
+        self.map = {}
+        self.allSets = []
+        self.pointsToPath = {}
+        self.currHeight = 0
+        self.insertWalls()
+        # print3dList(self.board)
+        self.convertToBoard()
+    
+    # function to test the functions in 3D maze
+    def testGenerate3DMaze(self):
+        self.firstStep()
+        self.joinAdjacentCells()
+        self.mapToBoard()
+        print3dList(self.board)
+        pass
+        #self.convertToBoard()
+    
+    # create walls in between each coordinate in the board
+    def insertWalls(self):
+        for k in range(len(self.board)):
+            for j in range(len(self.board[0])):
+                for i in range(len(self.board[0][0])):
+                    if k % 2 == 0:
+                        self.board[i][j][k] = 1
+                    else:
+                        if j % 2 == 0:
+                            self.board[i][j][k] = 1
+                        else:
+                            if i % 2 == 0:
+                                self.board[i][j][k] = 1
+    
+    # for a coordinate, convert to the actual coordinate in 3D
+    # k = height, j = row, i = col
+    def convertToBoard(self):
+        for k in range(self.height):
+            for j in range(self.row):
+                for i in range(self.col):
+                    self.pointsToPath[(k, j, i)] = (
+                                k * 2 + 1, j * 2 + 1, i * 2 + 1)
+        # print(self.pointsToPath)
+
+    # converts the dictionary path to the board
+    # makes the coordinates in between two points that are connected 0
+    def mapToBoard(self):
+        for coord in self.map:
+            z1, y1, x1 = coord
+            for connected in self.map[coord]:
+                z2, y2, x2 = connected
+                drow = y2 - y1
+                dcol = x2 - x1
+                dheight = z2 - z1
+                newZ, newY, newX = self.pointsToPath[(z1, y1, x1)]
+                if drow > 0:
+                    self.board[newZ][newY + 1][newX] = 0
+                elif drow < 0:
+                    self.board[newZ][newY - 1][newX] = 0
+                if dcol > 0:
+                    self.board[newZ][newY][newX + 1] = 0
+                elif dcol < 0:
+                    self.board[newZ][newY][newX - 1] = 0
+                if dheight > 0:
+                    self.board[newZ + 1][newY][newX] = 0
+                elif dheight < 0:
+                    self.board[newZ - 1][newY][newX] = 0
+    
+    # makes each coordinate in the board a set of itself
+    def firstStep(self):
+        for numRow in range(self.row):
+            for numCol in range(self.col):
+                newSet = set()
+                newSet.add((0, numRow, numCol))
+                self.allSets.append(newSet)      
+                # add the coordinate to the map
+                self.map[(0, numRow, numCol)] = set() 
+    
+    # randomly joins adjacent cells on the first layer on the board
+    # needs to join randomally in all four directions on the layer
+    def joinAdjacentCells(self):
+        for numRow in range(self.row - 1):
+            for numCol in range(self.col - 1):
+                for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
+                    drow, dcol = moves
+                    shouldCombine = random.randint(1, 4) == 1
+                    newRow = numRow + drow
+                    newCol = numCol + dcol
+                    if (newRow >= 0 and newRow < self.row and
+                        newCol >= 0 and newCol < self.row):
+                        b1 = (self.currHeight, numRow, numCol)
+                        b2 = (self.currHeight, newRow, newCol)
+                        if shouldCombine and (not self.inSameSet(b1, b2)):
+                            # print(self.numRow, "combined")
+                            self.mergeSets(b1, b2)
+        print(self.map)
+    
+# test3DMaze = threeDMaze(3, 3, 3, 100)
+# test3DMaze.testGenerate3DMaze()
