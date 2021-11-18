@@ -78,7 +78,7 @@ class Maze(object):
         self.addNewSets()
         self.lastRow()
         self.mapToBoard()
-        print2dList(self.board)
+        # print2dList(self.board)
     
     # actually generate a maze
     def generateMaze(self):
@@ -91,7 +91,7 @@ class Maze(object):
             self.addNewSets()
         self.lastRow()
         self.mapToBoard()
-        print2dList(self.board)
+        # print2dList(self.board)
     # at 11/15/2021 12:58 (now 59), I finished generating a layer of maze
     
     # insert walls of 1 in between the zeros
@@ -150,9 +150,9 @@ class Maze(object):
             b1 = (self.numRow, numCol)
             b2 = (self.numRow, numCol + 1)
             if shouldCombine and (not self.inSameSet(b1, b2)):
-                print(self.numRow, "combined")
+                # print(self.numRow, "combined")
                 self.mergeSets(b1, b2)
-        print(self.map)
+        # print(self.map)
     
     # to merge a two sets horizontally
     def mergeSets(self, b1, b2):
@@ -212,7 +212,7 @@ class Maze(object):
                         self.map[newCoord] = set()
                         self.map[coordinates].add(newCoord)
                         self.map[newCoord].add(coordinates)
-                        print(str(self.numRow) + " increased")
+                        #print(str(self.numRow) + " increased")
                     else:
                         count += 1
             # after looping through all the nodes in the set, 
@@ -287,8 +287,8 @@ class Maze(object):
             if not self.inSameSet(n1, n2):
                 self.mergeSets(n1, n2)
 
-testMaze = Maze(3, 3, 100)
-testMaze.generateMaze()
+# testMaze = Maze(10, 10, 100)
+# testMaze.generateMaze()
 
 
 # new problem to test the 3D maze
@@ -330,10 +330,23 @@ class threeDMaze(Maze):
     def testGenerate3DMaze(self):
         self.firstStep()
         self.joinAdjacentCells()
+        self.increaseVertically()
         self.mapToBoard()
-        print3dList(self.board)
-        pass
+        # print3dList(self.board)
         #self.convertToBoard()
+    
+    def generate3DMaze(self):
+        self.firstStep()
+        # minus 1 because the first row is already made
+        # and the last row is joined seperately
+        for i in range(self.height - 1):
+            self.joinAdjacentCells()
+            self.increaseVertically()
+            self.addNewSets()
+        self.lastStep()
+        self.mapToBoard()
+        # print3dList(self.board)
+
     
     # create walls in between each coordinate in the board
     def insertWalls(self):
@@ -365,6 +378,8 @@ class threeDMaze(Maze):
         for coord in self.map:
             z1, y1, x1 = coord
             for connected in self.map[coord]:
+                # print(self.map)
+                # print(connected)
                 z2, y2, x2 = connected
                 drow = y2 - y1
                 dcol = x2 - x1
@@ -396,11 +411,11 @@ class threeDMaze(Maze):
     # randomly joins adjacent cells on the first layer on the board
     # needs to join randomally in all four directions on the layer
     def joinAdjacentCells(self):
-        for numRow in range(self.row - 1):
-            for numCol in range(self.col - 1):
+        for numRow in range(self.row):
+            for numCol in range(self.col):
                 for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
                     drow, dcol = moves
-                    shouldCombine = random.randint(1, 4) == 1
+                    shouldCombine = random.randint(1, 3) <= 1
                     newRow = numRow + drow
                     newCol = numCol + dcol
                     if (newRow >= 0 and newRow < self.row and
@@ -410,7 +425,104 @@ class threeDMaze(Maze):
                         if shouldCombine and (not self.inSameSet(b1, b2)):
                             # print(self.numRow, "combined")
                             self.mergeSets(b1, b2)
-        print(self.map)
+        # print(self.map)
     
-# test3DMaze = threeDMaze(3, 3, 3, 100)
-# test3DMaze.testGenerate3DMaze()
+    # randomly add vertial coordinates to the new set
+    def increaseVertically(self):
+        for theSets in self.allSets:
+            storage = set()
+            count = 0
+            # print("theSets:" + str(theSets))
+            newPoints = self.numPointsNewRow(theSets)
+            # print("newPoints: " + str(newPoints))
+            for coordinates in theSets:
+                z, y, x = coordinates
+                # only loop through the coordinates that is in the same number of row
+                if z == self.currHeight:
+                    shouldIncrease = random.randint(1, 4) <= 1
+                    # if it is on the last point in the set and havent 
+                    # increased yet, force it to increase
+                    # if count == newPoints - 1:
+                    #     shouldIncrease = True
+                    if shouldIncrease:
+                        z1, y1, x1 = coordinates
+                        newCoord = (z1 + 1, y1, x1)
+                        # first store all new sets to append later together
+                        storage.add(newCoord)
+                        # add to the dictionary
+                        self.map[newCoord] = set()
+                        self.map[coordinates].add(newCoord)
+                        self.map[newCoord].add(coordinates)
+                        #print(str(self.numRow) + " increased")
+                    else:
+                        count += 1
+            # after looping through all the nodes in the set, 
+            # find the node that has the least number of connections 
+            # and increase that node vertically
+            if count == newPoints:
+                currCord = self.leastAdjacentNode(theSets)
+                z1, y1, x1 = currCord
+                newCoord = (z1 + 1, y1, x1)
+                # first store all new sets to append later together
+                storage.add(newCoord)
+                # add to the dictionary
+                self.map[newCoord] = set()
+                self.map[currCord].add(newCoord)
+                self.map[newCoord].add(currCord)
+            theSets = self.combineSets(theSets, storage)
+        # increase the height that we are on after increasing vertically
+        self.currHeight += 1
+
+        # returns the node in a set that has the least adjacent paths connected to it
+    def leastAdjacentNode(self, theSet):
+        bestNode = None
+        # 6 is the hightest number of possible connections for a node
+        bestConnections = 6
+        for nodes in theSet:
+            connections = len(self.map[nodes])
+            z, y, x = nodes
+            if z == self.currHeight:
+                if bestNode == None or connections < bestConnections:
+                    bestNode = nodes
+                    bestConnections = connections
+        return bestNode
+    
+    # gets the number of points in the new row
+    def numPointsNewRow(self, theSets):
+        count = 0
+        for coord in theSets:
+            z, y, x = coord
+            if self.currHeight == z:
+                count += 1
+        return count
+    
+    # if reach the last layer, join all remaining cells that does not share a set
+    def lastStep(self):
+        for numRow in range(self.row):
+            for numCol in range(self.col):
+                for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
+                    drow, dcol = moves
+                    newRow = numRow + drow
+                    newCol = numCol + dcol
+                    if (newRow >= 0 and newRow < self.row and
+                        newCol >= 0 and newCol < self.row):
+                        n1 = (self.currHeight, numRow, numCol)
+                        n2 = (self.currHeight, newRow, newCol)
+                        if not self.inSameSet(n1, n2):
+                            self.mergeSets(n1, n2)
+        print(self.allSets)
+        print(len(self.allSets))
+    
+    # make the rest of the coordinates their own set
+    # if they are not in a set already
+    def addNewSets(self):
+        for numRow in range(self.row):
+            for numCol in range(self.col):
+                newSet = set()
+                if (self.currHeight, numRow, numCol) not in self.map:
+                    newSet.add((self.currHeight, numRow, numCol))
+                    self.allSets.append(newSet)
+                    self.map[(self.currHeight, numRow, numCol)] = set()
+                    
+test3DMaze = threeDMaze(2, 2, 2, 100)
+test3DMaze.generate3DMaze()
