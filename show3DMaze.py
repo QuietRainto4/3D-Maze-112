@@ -48,7 +48,7 @@ def threeD_drawMaze(app, canvas, board, x1, y1, x2, y2):
                     y1 + colWidth * (numRow + 1),
                     fill = "black")
             elif board[numRow][numCol] == 'p':
-                if app.finished:
+                if app.finish3D:
                     canvas.create_rectangle(
                         x1 + colWidth * numCol,
                         y1 + rowWidth * numRow,
@@ -104,8 +104,25 @@ def threeD_keyPressed(app, event):
     elif event.key == "x":
         threeD_movePlayer(app, 0, 0, -1)
     # for chaning modes
-    if event.key == "2":
-        app.mode = "twoD"
+    if event.key == "b":
+        app.mode = "start"
+    elif event.key == "r":
+        threeD_reset(app)
+
+
+def threeD_reset(app):
+    # the values for the 3D maze
+    app.testMaze3D = threeDMaze(25, 25, 25, 100)
+    app.testMaze3D.generate3DMaze()
+    app.board3D = app.testMaze3D.board
+    # setting the finishing position
+    app.board3D[len(app.board3D)-2][len(app.board3D[0])-2][len(app.board3D[0][0])-2] = 'e'
+    # the board with player
+    app.boardP3D = copy.deepcopy(app.board3D)
+    app.pCol3D = 1
+    app.pRow3D = 1
+    app.pHeight3D = 1 
+    app.finish3D = False
 
 # move the position of the player
 def threeD_movePlayer(app, drow, dcol, dheight):
@@ -128,25 +145,38 @@ def threeD_redrawAll(app, canvas):
     yBoard = threeD_ySection(app)
     xBoard = threeD_xSection(app)
     canvas.create_text((app.zx1 + app.zx2) / 2, app.height * 1/22,
-                        text = f'z = {app.pHeight3D}')
+                        text = f'z = {app.pHeight3D}', font = "ariel 16")
     threeD_drawMaze(app, canvas, zBoard, app.zx1, app.zy1, 
                 app.zx2, app.zy2)
     canvas.create_text((app.yx1 + app.yx2) / 2, app.height * 11/22,
-                        text = f'y = {app.pRow3D}')
+                        text = f'y = {app.pRow3D}', font = "ariel 16")
     threeD_drawMaze(app, canvas, yBoard, app.yx1, app.yy1, 
                 app.yx2, app.yy2)
     canvas.create_text((app.xx1 + app.xx2) / 2, app.height * 11/22,
-                        text = f'x = {app.pCol3D}')
+                        text = f'x = {app.pCol3D}', font = "ariel 16")
     threeD_drawMaze(app, canvas, xBoard, app.xx1, app.xy1, 
                 app.xx2, app.xy2)
     # return the board to original after
+    if app.finish3D:
+        threeD_drawEnd(app, canvas)
 
 # checks if p in on the end by 
 def threeD_reachedEnd(app):
     if (app.pHeight3D == (len(app.board3D) - 2) and
         app.pRow3D == (len(app.board3D[0]) - 2) and
         app.pCol3D == (len(app.board3D[0][0]) - 2)):
-        app.finished = True
+        app.finish3D = True
     else:
-        app.finished = False
+        app.finish3D = False
+
+def threeD_drawEnd(app, canvas):
+    canvas.create_rectangle(app.width * 3 / 11, app.height * 4 / 11,
+                app.width * 8 / 11, app.height * 7 / 11, fill = "white",
+                outline = "black", width = app.width / 100)
+    canvas.create_text(app.width * 5.5 / 11, app.height * 5 / 11,
+                text = "Congradulations", font = "Ariel 24 bold")
+    canvas.create_text(app.width * 5.5 / 11, app.height * 5.5 / 11,
+                text = "Press R to play again", font = "Ariel 16 bold")
+    canvas.create_text(app.width * 5.5 / 11, app.height * 5.9 / 11,
+                text = "Or press B to return to Main Menu", font = "Ariel 16 bold")
                 
