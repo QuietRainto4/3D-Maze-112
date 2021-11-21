@@ -30,6 +30,8 @@ def twoD_keyPressed(app, event):
         twoD_movePlayer(app, 1, 0)
     elif event.key == 'r':
         twoD_reset(app)
+    elif event.key == 'b':
+        app.mode = "start"
 
 def twoD_reset(app):
     app.testMaze2D = Maze(10, 10, 100)
@@ -61,6 +63,8 @@ def twoD_drawEnd(app, canvas):
                 text = "Congradulations", font = "Ariel 24 bold")
     canvas.create_text(app.width * 5.5 / 11, app.height * 5.5 / 11,
                 text = "Press R to play again", font = "Ariel 16 bold")
+    canvas.create_text(app.width * 5.5 / 11, app.height * 5.9 / 11,
+                text = "Or press B to return to Main Menu", font = "Ariel 16 bold")
 
 def twoD_reachedEnd(app):
     if (app.pRow2D == (len(app.board2D) - 2) and
