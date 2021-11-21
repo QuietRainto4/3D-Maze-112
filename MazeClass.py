@@ -343,6 +343,7 @@ class threeDMaze(Maze):
             self.joinAdjacentCells()
             self.increaseVertically()
             self.addNewSets()
+            self.removeRows()
         self.lastStep()
         self.mapToBoard()
         # print3dList(self.board)
@@ -415,7 +416,7 @@ class threeDMaze(Maze):
             for numCol in range(self.col):
                 for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
                     drow, dcol = moves
-                    shouldCombine = random.randint(1, 3) <= 1
+                    shouldCombine = random.randint(1, 4) <= 1
                     newRow = numRow + drow
                     newCol = numCol + dcol
                     if (newRow >= 0 and newRow < self.row and
@@ -497,21 +498,39 @@ class threeDMaze(Maze):
         return count
     
     # if reach the last layer, join all remaining cells that does not share a set
+    # def lastStep(self):
+    #     for numRow in range(self.row):
+    #         for numCol in range(self.col):
+    #             for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
+    #                 drow, dcol = moves
+    #                 newRow = numRow + drow
+    #                 newCol = numCol + dcol
+    #                 if (newRow >= 0 and newRow < self.row and
+    #                     newCol >= 0 and newCol < self.row):
+    #                     n1 = (self.currHeight, numRow, numCol)
+    #                     n2 = (self.currHeight, newRow, newCol)
+    #                     if not self.inSameSet(n1, n2):
+    #                         self.mergeSets(n1, n2)
+
     def lastStep(self):
+        store = []
         for numRow in range(self.row):
             for numCol in range(self.col):
-                for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
-                    drow, dcol = moves
-                    newRow = numRow + drow
-                    newCol = numCol + dcol
-                    if (newRow >= 0 and newRow < self.row and
-                        newCol >= 0 and newCol < self.row):
-                        n1 = (self.currHeight, numRow, numCol)
-                        n2 = (self.currHeight, newRow, newCol)
-                        if not self.inSameSet(n1, n2):
-                            self.mergeSets(n1, n2)
-        print(self.allSets)
-        print(len(self.allSets))
+                store.append((numRow, numCol))
+        for num in range(len(store)):
+            randomCoord = random.randint(0, len(store) - 1)
+            currRow, currCol = store[randomCoord]
+            for moves in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
+                drow, dcol = moves
+                newRow = currRow + drow
+                newCol = currCol + dcol
+                if (newRow >= 0 and newRow < self.row and
+                    newCol >= 0 and newCol < self.row):
+                    n1 = (self.currHeight, currRow, currCol)
+                    n2 = (self.currHeight, newRow, newCol)
+                    if not self.inSameSet(n1, n2):
+                        self.mergeSets(n1, n2)
+            store.pop(randomCoord)
     
     # make the rest of the coordinates their own set
     # if they are not in a set already
@@ -524,5 +543,16 @@ class threeDMaze(Maze):
                     self.allSets.append(newSet)
                     self.map[(self.currHeight, numRow, numCol)] = set()
                     
+    # removes coordinates for rows after used
+    def removeRows(self):
+        for theSets in self.allSets:
+            store = []
+            for coord in theSets:
+                z, y, x, = coord
+                if z == self.currHeight - 1:
+                    store.append(coord)
+            for elem in store:
+                theSets.remove(elem)
+
 test3DMaze = threeDMaze(2, 2, 2, 100)
 test3DMaze.generate3DMaze()
