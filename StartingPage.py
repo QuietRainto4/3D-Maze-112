@@ -8,7 +8,7 @@ def start_redrawAll(app, canvas):
                         image=ImageTk.PhotoImage(app.title))
     # draws the three boxes for differnt games
     for buttons in app.startButtons:
-        buttons.drawButton(canvas, app)
+        buttons.drawButton(app, canvas)
     # canvas.create_rectangle(app.width * 3/11, app.height * 5/11,
     #                         app.width * 8/11, app.height * 6/11,
     #                         fill = "white", width = 5)
