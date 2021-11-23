@@ -9,10 +9,12 @@ from StartingPage import*
 
 def appStarted(app):
     app.mode = "start"
+    app.timePassed = 0
+    
 
     # the values for 2D maze
-    app.testMaze2D = Maze(10, 10, 100)
-    app.margin2D = 50
+    app.testMaze2D = Maze(25, 25, 100)
+    app.margin2D = 70
     app.colWidth2D = (app.width - 2 * app.margin2D) / (len(app.testMaze2D.board[0]))
     app.rowWidth2D = (app.height - 2 * app.margin2D) / (len(app.testMaze2D.board))
     app.testMaze2D.generateMaze()
@@ -20,9 +22,20 @@ def appStarted(app):
     app.pCol2D = 1
     app.pRow2D = 1
     app.finish2D = False
+    app.drawSolution2D = False
+    app.error2D = False
+    app.visited2D = set()
+    twoD_findSolution(app)
+    app.prevSize2D = 25
+    app.generateMazeButton2D = MyButton(app.width * 7/11, app.height * 0.25/11, 
+                            app.width * 8.8/11, app.height * 0.75/11, "Generate", 
+                            16)
+    app.input2D = CommandBar(app.width * 9/11, app.height * 0.25/11, 
+                            app.width * 10/11, app.height * 0.75/11, 16)
+    
 
     # the values for the 3D maze
-    app.testMaze3D = threeDMaze(4, 4, 4, 100)
+    app.testMaze3D = threeDMaze(5, 5, 5, 100)
     app.testMaze3D.generate3DMaze()
     app.board3D = app.testMaze3D.board
     # setting the finishing position
@@ -34,6 +47,17 @@ def appStarted(app):
     app.pRow3D = 1
     app.pHeight3D = 1 
     app.finish3D = False
+    app.visited3D = set()
+    app.drawSolution3D = False
+    threeD_findSolution(app)
+    app.error3D = False
+    app.prevSize3D = 5
+    app.generateMazeButton3D = MyButton(app.width * 7/11, app.height * 0.25/11, 
+                            app.width * 8.8/11, app.height * 0.75/11, "Generate", 
+                            16)
+    app.input3D = CommandBar(app.width * 9/11, app.height * 0.25/11, 
+                            app.width * 10/11, app.height * 0.75/11, 16)
+
     # the corners of the maze
     # I divided the window into 11 * 11 boxes
     app.zx1 = app.width * 1 / 11
@@ -62,13 +86,13 @@ def appStarted(app):
     app.theta = 0
     button1 = MyButton(app.width * 3/11, app.height * 5/11,
                         app.width * 8/11, app.height * 6/11,
-                        text = "2D Maze")
+                        "2D Maze", 36)
     button2 = MyButton(app.width * 3/11, app.height * 6.5/11,
                         app.width * 8/11, app.height * 7.5/11,
-                        text = "3D Maze")
+                        "3D Maze", 36)
     button3 = MyButton(app.width * 3/11, app.height * 8/11,
                         app.width * 8/11, app.height * 9/11,
-                        text = "impossible Maze")
+                        "Help", 36)
     app.startButtons = []
     app.startButtons.append(button1)
     app.startButtons.append(button2)
