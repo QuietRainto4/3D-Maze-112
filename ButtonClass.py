@@ -1,13 +1,14 @@
 from cmu_112_graphics import*
 
 class MyButton(App):
-    def __init__(self, x1, y1, x2, y2, text):
+    def __init__(self, x1, y1, x2, y2, text, textSize):
         self.corners = (x1, y1, x2, y2)
         self.x1 = x1
         self.y1 = y1
         self.x2 = x2
         self.y2 = y2
         self.text = text
+        self.textSize = textSize
         self.pressed = False
     
     def inRectangle(self, x, y):
@@ -16,20 +17,27 @@ class MyButton(App):
             return True
         return False
     
-    def drawButton(self,canvas, app):
+    def drawButton(self, app, canvas):
+        cx = (self.x1 + self.x2) / 2
+        cy = (self.y1 + self.y2) / 2
+        lineSize = int(min(cx, cy)) / 100
         canvas.create_rectangle(self.corners, fill = "white",
-                                width = 5)
+                                width = lineSize)
+        size = int(min(cx, cy) / 10)
+        canvas.create_text(cx, cy, text = self.text, 
+                            font = f"Ariel {self.textSize}")
     
     
 class CommandBar(MyButton):
-    def __init__(self, x1, y1, x2, y2):
-        super.__init__(x1, y1, x2, y2)
-        self.text = ""
+    def __init__(self, x1, y1, x2, y2, textSize):
+        super().__init__(x1, y1, x2, y2, "", textSize)
         self.type = False
 
-    def keyPressed(self, app, event):
-        if (self.type and event.key.isalnum() and len(event.key) == 1):
-            self.text += event.key
+    def drawInsersionPoint(self, app, canvas):
+        xPoint = (self.x2 - self.x1) * 3 / 4 + self.x1
+        canvas.create_rectangle(xPoint, self.y1 + 5, xPoint + 1, 
+                                self.y2 - 5, fill = "black", width = 0)
+
 
             
             
