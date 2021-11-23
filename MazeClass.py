@@ -145,7 +145,7 @@ class Maze(object):
     def joinAdjacentCells(self):
         for numCol in range(self.col - 1):
             shouldCombine = (
-                random.randint(1, 3) <= 2)
+                random.randint(1, 2) <= 1)
             # from the future, why did I use b?
             b1 = (self.numRow, numCol)
             b2 = (self.numRow, numCol + 1)
@@ -286,6 +286,8 @@ class Maze(object):
             n2 = (self.numRow, i + 1)
             if not self.inSameSet(n1, n2):
                 self.mergeSets(n1, n2)
+    
+    
 
 # testMaze = Maze(10, 10, 100)
 # testMaze.generateMaze()
