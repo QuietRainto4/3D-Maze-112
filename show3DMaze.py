@@ -146,6 +146,8 @@ def threeD_keyPressed(app, event):
         app.drawSolution3D = not app.drawSolution3D
     elif event.key == "c":
         app.error3D = False
+    elif event.key == "h":
+        app.mode = "help"
 
 # resets the value and generate another maze for the player to play
 def threeD_reset(app):
