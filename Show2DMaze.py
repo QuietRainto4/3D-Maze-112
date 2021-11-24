@@ -57,6 +57,8 @@ def twoD_keyPressed(app, event):
         app.drawSolution2D = not app.drawSolution2D
     elif event.key == "c":
         app.error2D = False
+    elif event.key == "h":
+        app.mode = "help"
 
 
 # resets the board for the player to play again
