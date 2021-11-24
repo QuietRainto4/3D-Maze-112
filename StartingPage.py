@@ -1,7 +1,8 @@
 from cmu_112_graphics import*
 import math
 from ButtonClass import*
-
+# make 3D maze that you can see and drag
+# include help funciton and instructions
 def start_redrawAll(app, canvas):
     start_drawMaze(app, canvas)
     canvas.create_image(app.width / 2, app.height * 3/11, 
@@ -28,10 +29,10 @@ def start_drawMaze(app, canvas):
                 x2 = app.colWidthBack * (numCol + 1)
                 y2 = app.colWidthBack * (numRow + 1)
                 
-                # r1, theta1 = cartasianToPolar(app, x1, y1)
-                # r2, theta2 = cartasianToPolar(app, x2, y2)
-                # x1, y1 = polarToCartasian(app, r1, theta1)
-                # x2, y2 = polarToCartasian(app, r2, theta2)
+                r1, theta1 = cartasianToPolar(app, x1, y1)
+                r2, theta2 = cartasianToPolar(app, x2, y2)
+                x1, y1 = polarToCartasian(app, r1, theta1)
+                x2, y2 = polarToCartasian(app, r2, theta2)
 
                 canvas.create_rectangle(
                     x1, y1, x2, y2,
@@ -41,7 +42,6 @@ def start_mousePressed(app, event):
     for buttons in app.startButtons:
         if buttons.inRectangle(event.x, event.y):
             buttons.pressed = True
-    print(buttons.pressed)
 
 def cartasianToPolar(app, x, y):
     centerX = app.width / 2
@@ -70,6 +70,9 @@ def start_timerFired(app):
     elif app.startButtons[1].pressed == True:
         app.mode = 'threeD'
         app.startButtons[1].pressed = False
+    elif app.startButtons[2].pressed == True:
+        app.mode = 'help'
+        app.startButtons[2].pressed = False
 
 
 
