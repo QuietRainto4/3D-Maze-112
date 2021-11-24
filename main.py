@@ -5,12 +5,11 @@ from MazeClass import*
 from Show2DMaze import*
 from show3DMaze import*
 from StartingPage import*
-# from ButtonClass import*
+from HelpPage import*
 
 def appStarted(app):
     app.mode = "start"
     app.timePassed = 0
-    
 
     # the values for 2D maze
     app.testMaze2D = Maze(25, 25, 100)
