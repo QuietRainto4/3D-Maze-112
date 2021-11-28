@@ -38,6 +38,13 @@ class CommandBar(MyButton):
         canvas.create_rectangle(xPoint, self.y1 + 5, xPoint + 1, 
                                 self.y2 - 5, fill = "black", width = 0)
 
+class OnOffButton(MyButton):
+    def __init__(self, x1, y1, x2, y2, state):
+        super().__init__(self, x1, y1, x2, y2, "", 0)
+        self.state = state
+
+    def drawButton(self, x1, y1, x2, y2):
+        pass
 
             
             
