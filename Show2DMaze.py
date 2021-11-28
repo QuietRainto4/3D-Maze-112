@@ -1,6 +1,7 @@
 from cmu_112_graphics import*
 from MazeClass import*
 from ButtonClass import*
+import time
 
 # draws the maze
 def twoD_drawMaze(app, canvas):
@@ -16,23 +17,103 @@ def twoD_drawMaze(app, canvas):
 
 # draws on the canvas
 def twoD_redrawAll(app, canvas):
-    twoD_drawMaze(app, canvas)
-    if app.drawSolution2D == True:
-        twoD_drawSolutions(app, canvas)
+    if app.enlarge == False:
+        twoD_drawMaze(app, canvas)
+        if app.drawSolution2D == True:
+            twoD_drawSolutions(app, canvas)
+        twoD_drawGoal(app, canvas)
+        twoD_drawPlayer(app, canvas)
+    else:
+        
+        if app.drawSolution2D == True:
+            sBoard = twoD_includeSolution(app)
+            newBoard = twoD_partOfBoard(app, sBoard)
+        else:
+            newBoard = twoD_partOfBoard(app, app.board2D)
+        twoD_enlargedMaze(app, canvas, newBoard)
+
     if app.finish2D == True:
         twoD_drawEnd(app, canvas)
     app.input2D.drawButton(app, canvas)
     app.generateMazeButton2D.drawButton(app, canvas)
-    twoD_drawGoal(app, canvas)
-    twoD_drawPlayer(app, canvas)
     if app.timePassed % 10 < 5 and app.input2D.type == True:
         app.input2D.drawInsersionPoint(app, canvas)
     if app.error2D == True:
         twoD_drawError(app, canvas)
-    
+
+def twoD_includeSolution(app):
+    copyBoard = copy.deepcopy(app.board2D)
+    for numRow in range(len(copyBoard)):
+        for numCol in range(len(copyBoard)):
+            if (numRow, numCol) in app.visited2D:
+                copyBoard[numRow][numCol] = "b"
+            if (numRow == len(app.board2D) - 2 and 
+                numCol == len(app.board2D) - 2):
+                copyBoard[numRow][numCol] = "p"
+    return copyBoard
+            
+
+# draws the enlarged portion of the maze in app.enlarge == True
+# for the solution board, if the point is in the set, then draw it as solution
+def twoD_enlargedMaze(app, canvas, newBoard):
+    width = (app.width - 2 * app.margin2D) / app.size
+    height = (app.height - 2 * app.margin2D) / app.size
+    for numRow in range(len(newBoard)):
+        for numCol in range(len(newBoard[0])):
+            if newBoard[numRow][numCol] == "p":
+                canvas.create_rectangle(
+                    app.margin2D + width * numCol,
+                    app.margin2D + height * numRow,
+                    app.margin2D + width * (numCol + 1),
+                    app.margin2D + height * (numRow + 1),
+                    fill = "pink")
+            elif (numRow == len(newBoard) // 2 and 
+                numCol == len(newBoard[0]) // 2):
+                canvas.create_oval(
+                    app.margin2D + width * numCol,
+                    app.margin2D + height * numRow,
+                    app.margin2D + width * (numCol + 1),
+                    app.margin2D + height * (numRow + 1),
+                    fill = "red")
+            elif newBoard[numRow][numCol] == 1:
+                canvas.create_rectangle(
+                    app.margin2D + width * numCol,
+                    app.margin2D + height * numRow,
+                    app.margin2D + width * (numCol + 1),
+                    app.margin2D + height * (numRow + 1),
+                    fill = "black")
+            elif newBoard[numRow][numCol] == "b":
+                canvas.create_rectangle(
+                    app.margin2D + width * numCol,
+                    app.margin2D + height * numRow,
+                    app.margin2D + width * (numCol + 1),
+                    app.margin2D + height * (numRow + 1),
+                    fill = "light blue", outline = "light blue")
+
+# returns the 9 * 9 surrounding of the board, keeping the player in the center at all times
+# if it is out of the board, it is represented by a 0
+def twoD_partOfBoard(app, board):
+    newBoard = []
+    for i in range(app.size):
+        newBoard.append([0] * app.size)
+    # app.pCol2D, app.pRow2D
+    i = 0
+    for row in range(app.pRow2D - app.size//2, app.pRow2D + app.size//2 + 1):
+        j = 0
+        for col in range(app.pCol2D - app.size//2, app.pCol2D + app.size//2 + 1):
+            if (row >= 0 and row < len(board) and 
+                col >= 0 and col < len(board)):
+                newBoard[i][j] = board[row][col]
+            if (row == len(app.board2D) - 2 and 
+                col == len(app.board2D) - 2):
+                newBoard[i][j] = "p"
+            j += 1
+        i += 1
+    return newBoard
 
 # detects key presses and moves player depending on it
 def twoD_keyPressed(app, event):
+    print(event.key)
     if (app.input2D.type and event.key.isdigit() and len(event.key) == 1):
         if len(app.input2D.text) >= 3:
             app.input2D.text = app.input2D.text[1:]
@@ -56,9 +137,17 @@ def twoD_keyPressed(app, event):
     elif event.key == "s":
         app.drawSolution2D = not app.drawSolution2D
     elif event.key == "c":
-        app.error2D = False
+        app.error2D = not app.error2D
     elif event.key == "h":
         app.mode = "help"
+    elif event.key == "f":
+        app.enlarge = not app.enlarge
+    elif event.key == "minus":
+        if app.size < 25:
+            app.size += 2
+    elif event.key == "equal":
+        if app.size > 1:
+            app.size -= 2
 
 
 # resets the board for the player to play again
@@ -124,7 +213,7 @@ def twoD_drawError(app, canvas):
                 text = "press c to exit", font = "Ariel 14 bold")
 
 def twoD_generateMaze(app):
-    if int(app.input2D.text) > 100 or int(app.input2D.text) <= 1:
+    if len(app.input2D.text) == 0 or int(app.input2D.text) > 100 or int(app.input2D.text) <= 1:
         app.error2D = True
         return
     if len(app.input2D.text) == 0:
