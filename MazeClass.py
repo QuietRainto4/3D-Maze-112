@@ -259,11 +259,6 @@ class Maze(object):
                 count += 1
         return count
 
-    # problem now
-    # some lines simply will not increase vertically
-    # should find the path that has the least adjacent nodes and force it to increase
-
-
     # returns the node in a set that has the least adjacent paths connected to it
     def leastAdjacentNode(self, theSet):
         bestNode = None
@@ -287,22 +282,21 @@ class Maze(object):
             if not self.inSameSet(n1, n2):
                 self.mergeSets(n1, n2)
     
+    # removes coordinates for rows after used
+    def removeRows(self):
+        for theSets in self.allSets:
+            store = []
+            for coord in theSets:
+                y, x, = coord
+                if y == self.numRow - 1:
+                    store.append(coord)
+            for elem in store:
+                theSets.remove(elem)
     
-
-# testMaze = Maze(10, 10, 100)
+    
+# testMaze = Maze(100, 100, 100)
 # testMaze.generateMaze()
 
-
-# new problem to test the 3D maze
-# how will I even know if the make is working
-# should first make a backtracking to find the solution?
-# otherwise can maybe try with a tini tiny maze, like 3 x 3 or 4 x 4
-
-# the next line was the 250th code when I typed it, though now it is not
-# the 250th line code reached on 11/15/2021, 12:45 AM CELEBRATION!
-# though many ahem, majority of the lines are comments and spaces
-# btw, adding random comments in the code is fun, and it makes it seem 
-# like I did so much, when I did not
 
 
 # note for 3D
@@ -556,5 +550,5 @@ class threeDMaze(Maze):
             for elem in store:
                 theSets.remove(elem)
 
-test3DMaze = threeDMaze(2, 2, 2, 100)
-test3DMaze.generate3DMaze()
+# test3DMaze = threeDMaze(2, 2, 2, 100)
+# test3DMaze.generate3DMaze()
