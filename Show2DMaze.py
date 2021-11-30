@@ -1,3 +1,6 @@
+# the file for the 2D maze mode page
+# has all the functions needed for the 2D maze mode to work
+
 from cmu_112_graphics import*
 from MazeClass import*
 from ButtonClass import*
