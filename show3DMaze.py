@@ -67,12 +67,22 @@ def threeD_drawBox(app, canvas, board, code, x1, y1, x2, y2, numRow, numCol):
                 x1 + colWidth * (numCol + 1),
                 y1 + colWidth * (numRow + 1),
                 fill = "pink")
-        canvas.create_oval(
-            x1 + colWidth * numCol,
-            y1 + rowWidth * numRow,
-            x1 + colWidth * (numCol + 1),
-            y1 + colWidth * (numRow + 1),
-            fill = "red")
+        if app.player == 6:
+            canvas.create_oval(
+                x1 + colWidth * numCol,
+                y1 + rowWidth * numRow,
+                x1 + colWidth * (numCol + 1),
+                y1 + colWidth * (numRow + 1),
+                fill = "red")
+        else:
+            cx = (2 * x1 + colWidth * (2 * numCol + 1))/2
+            cy = (2 * y1 + rowWidth * (2 * numRow + 1))/2
+            size = colWidth / 300 
+            image = app.players[app.player]
+            player = app.scaleImage(image, size)
+            canvas.create_image(cx, cy, 
+                            image=ImageTk.PhotoImage(player))
+
     elif board[numRow][numCol] == 'e':
         canvas.create_rectangle(
             x1 + colWidth * numCol,
@@ -111,12 +121,10 @@ def threeD_ySection(app):
 
 def threeD_mousePressed(app, event):
     # depending of which button is clicked on, do a certain action
-    if app.input3D.inRectangle(event.x, event.y):
-        app.input3D.type = not app.input3D.type
-    elif app.generateMazeButton3D.inRectangle(event.x, event.y):
-        app.generateMazeButton3D.pressed = True
-    elif app.changePlayer.inRectangle(event.x, event.y):
-        app.changePlayer.pressed = True
+    for buttons in app.button3D:
+        if buttons.inRectangle(event.x, event.y):
+            buttons.pressed = True
+
 
     if app.finish3D == True:
         if app.endRetry.inRectangle(event.x, event.y):
@@ -146,7 +154,7 @@ def threeD_keyPressed(app, event):
     elif event.key == "c":
         app.error3D = False
     elif event.key == "h":
-        app.mode = "help"
+        app.mode = "help3D"
     elif event.key == "a":
         threeD_playerIncrease(app)
 
@@ -248,6 +256,25 @@ def threeD_timerFired(app):
     if app.generateMazeButton3D.pressed == True:
         app.generateMazeButton3D.pressed = False
         threeD_generateMaze(app)
+    if app.input3D.pressed == True:
+        app.input3D.type = not app.input3D.type
+        app.input3D.pressed = False
+    if app.zButton.pressed == True:
+        app.zButton.state = not app.zButton.state
+        app.zButton.pressed = False
+    if app.xButton.pressed == True:
+        app.xButton.state = not app.xButton.state
+        app.xButton.pressed = False
+    if app.yButton.pressed == True:
+        app.yButton.state = not app.yButton.state
+        app.yButton.pressed = False
+    if app.plusCharacter.pressed == True:
+        threeD_playerIncrease(app)
+        app.plusCharacter.pressed = False
+    if app.decreaseCharacter.pressed == True:
+        threeD_playerDecrease(app)
+        app.decreaseCharacter.pressed = False
+    
     if app.finish3D == True:
         if app.endRetry.pressed == True:
             app.endRetry.pressed = False
@@ -268,24 +295,26 @@ def threeD_timerFired(app):
 
 
 def threeD_redrawAll(app, canvas):
+    threeD_drawPlayerSelection(app, canvas)
     # set the coordinate to what the person is in as 'p'
     zBoard = threeD_zSection(app)
     yBoard = threeD_ySection(app)
     xBoard = threeD_xSection(app)
-    canvas.create_image(app.width * 8/11, app.height * 3/11, 
-                        image=ImageTk.PhotoImage(app.graph))
     canvas.create_text((app.zx1 + app.zx2) / 2, app.height * 1/22,
                         text = f'z = {app.pHeight3D}', font = "ariel 16")
-    threeD_drawMaze(app, canvas, zBoard, app.zx1, app.zy1, 
-                app.zx2, app.zy2)
+    if app.zButton.state == True:
+        threeD_drawMaze(app, canvas, zBoard, app.zx1, app.zy1, 
+                    app.zx2, app.zy2)
     canvas.create_text((app.yx1 + app.yx2) / 2, app.height * 11/22,
                         text = f'y = {app.pRow3D}', font = "ariel 16")
-    threeD_drawMaze(app, canvas, yBoard, app.yx1, app.yy1, 
-                app.yx2, app.yy2)
+    if app.yButton.state == True:
+        threeD_drawMaze(app, canvas, yBoard, app.yx1, app.yy1, 
+                    app.yx2, app.yy2)
     canvas.create_text((app.xx1 + app.xx2) / 2, app.height * 11/22,
                         text = f'x = {app.pCol3D}', font = "ariel 16")
-    threeD_drawMaze(app, canvas, xBoard, app.xx1, app.xy1, 
-                app.xx2, app.xy2)
+    if app.xButton.state == True:
+        threeD_drawMaze(app, canvas, xBoard, app.xx1, app.xy1, 
+                    app.xx2, app.xy2)
     # draws the buttons
     for button in app.button3D:
         button.drawButton(app, canvas)
@@ -301,7 +330,7 @@ def threeD_redrawAll(app, canvas):
     if app.error3D == True:
         threeD_drawError(app, canvas)
     
-    
+
 
 # checks if p in on the end by 
 def threeD_reachedEnd(app):
@@ -380,3 +409,21 @@ def threeD_playerIncrease(app):
     app.player += 1
     if app.player > 6:
         app.player = 0
+
+# switch player character
+def threeD_playerDecrease(app):
+    app.player -= 1
+    if app.player < 0:
+        app.player = 6
+
+# draws the player in selection
+def threeD_drawPlayerSelection(app, canvas):
+    if app.player == 6:
+        canvas.create_oval(app.width * 7.2/11, app.height * 1.45/11, 
+                        app.width * 8.8/11, app.height * 3.05/11,
+                        fill = "red")
+    else:
+        player = app.players[app.player]
+        player = app.scaleImage(player, 0.5)
+        canvas.create_image(app.width * 8/11, app.height * 2.25/11, 
+                    image=ImageTk.PhotoImage(player))
