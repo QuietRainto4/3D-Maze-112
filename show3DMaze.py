@@ -117,7 +117,8 @@ def threeD_mousePressed(app, event):
         app.generateMazeButton3D.pressed = True
     elif app.changePlayer.inRectangle(event.x, event.y):
         app.changePlayer.pressed = True
-    if app.finish2D == True:
+
+    if app.finish3D == True:
         if app.endRetry.inRectangle(event.x, event.y):
             app.endRetry.pressed = True
         elif app.endBack.inRectangle(event.x, event.y):
@@ -125,6 +126,7 @@ def threeD_mousePressed(app, event):
 
 # does action based on the key that is pressed
 def threeD_keyPressed(app, event):
+    print(event.key)
     if (app.input3D.type and event.key.isdigit() and len(event.key) == 1):
         if len(app.input3D.text) >= 3:
             app.input3D.text = app.input3D.text[1:]
@@ -249,6 +251,7 @@ def threeD_timerFired(app):
     if app.finish3D == True:
         if app.endRetry.pressed == True:
             app.endRetry.pressed = False
+            print("it is pressed")
             threeD_reset(app)
         if app.endBack.pressed == True:
             app.endBack.pressed = False
