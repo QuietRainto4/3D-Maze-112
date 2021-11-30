@@ -1,3 +1,6 @@
+# the file for the 2D maze mode page
+# has all the functions needed for the 2D maze mode to work
+
 from cmu_112_graphics import*
 from MazeClass import*
 from ButtonClass import*
@@ -47,6 +50,7 @@ def threeD_drawMaze(app, canvas, board, x1, y1, x2, y2):
                 threeD_drawBox(app, canvas, board, board[numRow][numCol], 
                                 x1, y1, x2, y2, numRow, numCol)
 
+# draws the indivdual box in the maze
 def threeD_drawBox(app, canvas, board, code, x1, y1, x2, y2, numRow, numCol):
     width = x2 - x1
     height = y2 - y1
