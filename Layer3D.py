@@ -38,7 +38,7 @@ def layer3D_redrawAll(app, canvas):
     if app.timePassed % 10 < 5 and app.input3L.type == True:
         app.input3L.drawInsersionPoint(app, canvas)
     if app.error3L == True:
-        twoD_drawError(app, canvas)
+        layer3D_drawError(app, canvas)
 
 def layer3D_drawLayer(app, canvas, layer):
     width = (app.width - 2 * app.margin) / (len(layer))
@@ -362,7 +362,7 @@ def layer3D_keyPressed(app, event):
     elif event.key == "c":
         app.error3L = False
     elif event.key == "h":
-        app.mode = "help"
+        app.mode = "help3L"
     elif event.key == "a":
         threeD_playerIncrease(app)
     elif event.key == "minus":
