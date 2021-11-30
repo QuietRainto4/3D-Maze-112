@@ -67,6 +67,7 @@ class OnOffButton(MyButton):
         canvas.create_text(cx - 68, cy, text = self.text, 
                             font = f"Ariel {self.textSize}")
 
+# the class for drawing the triangular shapes
 class irrButton(MyButton):
     def __init__(self, x1, y1, x2, y2, direction):
         super().__init__(x1, y1, x2, y2, "", 0)
