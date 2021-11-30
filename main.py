@@ -6,12 +6,13 @@ from Show2DMaze import*
 from show3DMaze import*
 from StartingPage import*
 from HelpPage import*
-from ScoresClass import*
+from Layer3D import*
 
 def appStarted(app):
     
     app.mode = "start"
     app.timePassed = 0
+    app.margin = 70
 
     app.player = 6
     # list of players
@@ -32,9 +33,8 @@ def appStarted(app):
 
     # the values for 2D maze
     app.testMaze2D = Maze(25, 25, 100)
-    app.margin2D = 70
-    app.colWidth2D = (app.width - 2 * app.margin2D) / (len(app.testMaze2D.board[0]))
-    app.rowWidth2D = (app.height - 2 * app.margin2D) / (len(app.testMaze2D.board))
+    app.colWidth2D = (app.width - 2 * app.margin) / (len(app.testMaze2D.board[0]))
+    app.rowWidth2D = (app.height - 2 * app.margin) / (len(app.testMaze2D.board))
     app.testMaze2D.generateMaze()
     app.board2D = app.testMaze2D.board
     app.copyBoard = []
@@ -147,25 +147,40 @@ def appStarted(app):
     app.startButtons.append(button2)
     app.startButtons.append(button3)
 
+    # a third mode where the player can only see the horizontal layer
+    # it is very similar to the 2D representation
+    # therefore will just use a lot of method from 2D
+    app.testMaze3L = threeDMaze(5, 5, 5, 100)
+    app.testMaze3L.generate3DMaze()
+    app.board3L = app.testMaze3L.board
+    # setting the finishing position
+    app.board3L[len(app.board3L)-2][len(app.board3L[0])-2][len(app.board3L[0][0])-2] = 'e'
+    # the board with player
+    app.boardP3L = copy.deepcopy(app.board3L)
+    # print3dList(app.board3D)
+    app.size3L = 9
+    app.pCol3L = 1
+    app.pRow3L = 1
+    app.pHeight3L = 1 
+    app.finish3L = False
+    app.visited3L = set()
+    app.drawSolution3L = False
+    layer3D_findSolution(app)
+    app.error3L = False
+    app.enlarge3L = False
+    app.prevSize3L = 5
+    app.startTime3L = time.time()
+    app.currTime3L = 0
+    app.moveTime3L = False
+    app.generateMazeButton3L = MyButton(app.width * 7/11, app.height * 0.25/11, 
+                            app.width * 8.8/11, app.height * 0.75/11, "Generate", 
+                            16)
+    app.input3L = CommandBar(app.width * 9/11, app.height * 0.25/11, 
+                            app.width * 10/11, app.height * 0.75/11, 16)
+    app.button3L = []
+    app.button3L.append(app.generateMazeButton3L)
+    app.button3L.append(app.input3L)
+    print3dList(app.board3L)
 
 runApp(width=800, height=800)
 
-
-# the white background in a circle - how to delete that
-# now it is possible to work with smoothly with a large maze
-# is it possible to increase the size
-
-# To do list
-# Find a way to store it on the computer
-# customize axolot heads
-# add more and more buttons 
-#       change color
-#       show answer
-#       A menu is needed
-#       I don't have time though
-#       just change colors then
-#       good enough
-
-# add buttons for the end screen for
-# Too difficult to store the score as it is not valid?
-# calculate the score based on the time? - LAZY BUG 
