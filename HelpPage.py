@@ -1,3 +1,5 @@
+# the main help page that explains the game
+
 from cmu_112_graphics import*
 
 def help_redrawAll(app, canvas):
@@ -15,6 +17,10 @@ def help_drawInstructions(app, canvas):
     3D layer mode only shows the z plane but has +, -, =, 
     signs to signify whether the player can move up or down
     at that spot. 
+
+    Somtimes, if the maze that is generated is too large, the
+    game may be a little slow. Therefore it is best if you
+    can pick the best maze size to play with.
 
     If needed, press h in the different mode to check out
     all the shortcuts avaliable in that particular game.
