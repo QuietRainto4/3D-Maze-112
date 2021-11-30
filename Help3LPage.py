@@ -1,3 +1,5 @@
+# the help page with instructions for the layer 3D game
+
 from cmu_112_graphics import*
 
 def help3L_redrawAll(app, canvas):
