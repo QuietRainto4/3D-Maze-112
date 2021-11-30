@@ -26,7 +26,6 @@ class MyButton(App):
         lineSize = int(min(cx, cy)) / 100
         canvas.create_rectangle(self.corners, fill = "white",
                                 width = lineSize)
-        size = int(min(cx, cy) / 10)
         canvas.create_text(cx, cy, text = self.text, 
                             font = f"Ariel {self.textSize}")
     
