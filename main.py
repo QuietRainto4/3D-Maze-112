@@ -1,4 +1,5 @@
 # the main file for all the different screens
+# includes all variables used throughout the entire game
 
 from cmu_112_graphics import*
 from MazeClass import*
