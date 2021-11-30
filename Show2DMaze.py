@@ -4,22 +4,22 @@ from ButtonClass import*
 import time
 
 # draws the maze
-def twoD_drawMaze(app, canvas):
-    for numRow in range(len(app.board2D)):
-        for numCol in range(len(app.board2D[0])):
-            if app.board2D[numRow][numCol] == 1:
+def drawMaze(app, canvas, board):
+    for numRow in range(len(board)):
+        for numCol in range(len(board)):
+            if board[numRow][numCol] == 1:
                 canvas.create_rectangle(
-                    app.margin2D + app.colWidth2D * numCol,
-                    app.margin2D + app.rowWidth2D * numRow,
-                    app.margin2D + app.colWidth2D * (numCol + 1),
-                    app.margin2D + app.colWidth2D * (numRow + 1),
+                    app.margin + app.colWidth2D * numCol,
+                    app.margin + app.rowWidth2D * numRow,
+                    app.margin + app.colWidth2D * (numCol + 1),
+                    app.margin + app.colWidth2D * (numRow + 1),
                     fill = "black")
 
 # draws on the canvas
 def twoD_redrawAll(app, canvas):
     twoD_drawTime(app, canvas)
     if app.enlarge == False:
-        twoD_drawMaze(app, canvas)
+        drawMaze(app, canvas, app.board2D)
         if app.drawSolution2D == True:
             twoD_drawSolutions(app, canvas)
         twoD_drawGoal(app, canvas)
@@ -60,44 +60,44 @@ def twoD_includeSolution(app):
 # for the solution board, if the point is in the set
 # then draw it as solution
 def twoD_enlargedMaze(app, canvas, newBoard):
-    width = (app.width - 2 * app.margin2D) / app.size
-    height = (app.height - 2 * app.margin2D) / app.size
+    width = (app.width - 2 * app.margin) / app.size
+    height = (app.height - 2 * app.margin) / app.size
     for numRow in range(len(newBoard)):
         for numCol in range(len(newBoard[0])):
             if newBoard[numRow][numCol] == "p":
                 canvas.create_rectangle(
-                    app.margin2D + width * numCol,
-                    app.margin2D + height * numRow,
-                    app.margin2D + width * (numCol + 1),
-                    app.margin2D + height * (numRow + 1),
+                    app.margin + width * numCol,
+                    app.margin + height * numRow,
+                    app.margin + width * (numCol + 1),
+                    app.margin + height * (numRow + 1),
                     fill = "pink")
             elif newBoard[numRow][numCol] == 1:
                 canvas.create_rectangle(
-                    app.margin2D + width * numCol,
-                    app.margin2D + height * numRow,
-                    app.margin2D + width * (numCol + 1),
-                    app.margin2D + height * (numRow + 1),
+                    app.margin + width * numCol,
+                    app.margin + height * numRow,
+                    app.margin + width * (numCol + 1),
+                    app.margin + height * (numRow + 1),
                     fill = "black")
             elif newBoard[numRow][numCol] == "b":
                 canvas.create_rectangle(
-                    app.margin2D + width * numCol,
-                    app.margin2D + height * numRow,
-                    app.margin2D + width * (numCol + 1),
-                    app.margin2D + height * (numRow + 1),
+                    app.margin + width * numCol,
+                    app.margin + height * numRow,
+                    app.margin + width * (numCol + 1),
+                    app.margin + height * (numRow + 1),
                     fill = "light blue", outline = "light blue")
             
             if (numRow == len(newBoard) // 2 and 
                     numCol == len(newBoard[0]) // 2):
                 if app.player == 6:
                     canvas.create_oval(
-                        app.margin2D + width * numCol,
-                        app.margin2D + height * numRow,
-                        app.margin2D + width * (numCol + 1),
-                        app.margin2D + height * (numRow + 1),
+                        app.margin + width * numCol,
+                        app.margin + height * numRow,
+                        app.margin + width * (numCol + 1),
+                        app.margin + height * (numRow + 1),
                         fill = "red")
                 else:
-                    cx = (2 * app.margin2D + width *(2 * numCol + 1)) / 2
-                    cy = (2 * app.margin2D + height *(2 * numRow + 1)) / 2
+                    cx = (2 * app.margin + width *(2 * numCol + 1)) / 2
+                    cy = (2 * app.margin + height *(2 * numRow + 1)) / 2
                     # 400 is the size of the image
                     size = width / 300 
                     image = app.players[app.player]
@@ -183,8 +183,8 @@ def twoD_keyPressed(app, event):
 # resets the board for the player to play again
 def twoD_reset(app):
     app.testMaze2D = Maze(app.prevSize2D, app.prevSize2D, 100)
-    app.colWidth2D = (app.width - 2 * app.margin2D) / (len(app.testMaze2D.board[0]))
-    app.rowWidth2D = (app.height - 2 * app.margin2D) / (len(app.testMaze2D.board))
+    app.colWidth2D = (app.width - 2 * app.margin) / (len(app.testMaze2D.board[0]))
+    app.rowWidth2D = (app.height - 2 * app.margin) / (len(app.testMaze2D.board))
     app.testMaze2D.generateMaze()
     app.board2D = app.testMaze2D.board
     app.pCol2D = 1
@@ -206,14 +206,14 @@ def twoD_movePlayer(app, drow, dcol):
 # draws the player as a red not
 def twoD_drawPlayer(app, canvas):
     if app.player == 6:
-        canvas.create_oval(app.margin2D + app.colWidth2D * app.pCol2D,
-                        app.margin2D + app.rowWidth2D * app.pRow2D,
-                        app.margin2D + app.colWidth2D * (app.pCol2D + 1),
-                        app.margin2D + app.colWidth2D * (app.pRow2D + 1),
+        canvas.create_oval(app.margin + app.colWidth2D * app.pCol2D,
+                        app.margin + app.rowWidth2D * app.pRow2D,
+                        app.margin + app.colWidth2D * (app.pCol2D + 1),
+                        app.margin + app.colWidth2D * (app.pRow2D + 1),
                         fill = "red")
     else:
-        cx = (2 * app.margin2D + app.colWidth2D *(2 * app.pCol2D + 1)) / 2
-        cy = (2 * app.margin2D + app.rowWidth2D *(2 * app.pRow2D + 1)) / 2
+        cx = (2 * app.margin + app.colWidth2D *(2 * app.pCol2D + 1)) / 2
+        cy = (2 * app.margin + app.rowWidth2D *(2 * app.pRow2D + 1)) / 2
         # 400 is the size of the image
         size = app.colWidth2D / 300 
         image = app.players[app.player]
@@ -267,8 +267,8 @@ def twoD_generateMaze(app):
         app.testMaze2D = Maze(int(app.input2D.text), int(app.input2D.text), 100)
         app.prevSize2D = int(app.input2D.text)
     app.input2D.text = ""
-    app.colWidth2D = (app.width - 2 * app.margin2D) / (len(app.testMaze2D.board[0]))
-    app.rowWidth2D = (app.height - 2 * app.margin2D) / (len(app.testMaze2D.board))
+    app.colWidth2D = (app.width - 2 * app.margin) / (len(app.testMaze2D.board[0]))
+    app.rowWidth2D = (app.height - 2 * app.margin) / (len(app.testMaze2D.board))
     app.testMaze2D.generateMaze()
     app.board2D = app.testMaze2D.board
     app.pCol2D = 1
@@ -282,7 +282,6 @@ def twoD_generateMaze(app):
     app.currTime2D = 0
     app.moveTime2D = False
     
-
 # called every run
 # checks if the player reached the end or not
 def twoD_timerFired(app):
@@ -336,29 +335,27 @@ def twoD_drawSolutions(app, canvas):
     for coord in app.visited2D:
         y, x = coord
         canvas.create_rectangle(
-                    app.margin2D + app.colWidth2D * x,
-                    app.margin2D + app.rowWidth2D * y,
-                    app.margin2D + app.colWidth2D * (x + 1),
-                    app.margin2D + app.colWidth2D * (y + 1),
+                    app.margin + app.colWidth2D * x,
+                    app.margin + app.rowWidth2D * y,
+                    app.margin + app.colWidth2D * (x + 1),
+                    app.margin + app.colWidth2D * (y + 1),
                     fill = "light blue", outline = "light blue")
 
 def twoD_drawGoal(app, canvas):
     canvas.create_rectangle(
-                    app.margin2D + app.colWidth2D * (len(app.board2D) - 2),
-                    app.margin2D + app.rowWidth2D * (len(app.board2D) - 2),
-                    app.margin2D + app.colWidth2D * (len(app.board2D) - 1),
-                    app.margin2D + app.colWidth2D * (len(app.board2D) - 1),
+                    app.margin + app.colWidth2D * (len(app.board2D) - 2),
+                    app.margin + app.rowWidth2D * (len(app.board2D) - 2),
+                    app.margin + app.colWidth2D * (len(app.board2D) - 1),
+                    app.margin + app.colWidth2D * (len(app.board2D) - 1),
                     fill = "pink", outline = "pink")
 
 # calls when the mouse if pressed
 def twoD_mousePressed(app, event):
     # depending of which button is clicked on, do a certain action
-    if app.input2D.inRectangle(event.x, event.y):
-        app.input2D.type = not app.input2D.type
-    elif app.generateMazeButton2D.inRectangle(event.x, event.y):
-        app.generateMazeButton2D.pressed = True
-    elif app.changePlayer.inRectangle(event.x, event.y):
-        app.changePlayer.pressed = True
+    for buttons in app.button2D:
+        if buttons.inRectangle(event.x, event.y):
+            buttons.pressed = True
+
     if app.finish2D == True:
         if app.endRetry.inRectangle(event.x, event.y):
             app.endRetry.pressed = True
