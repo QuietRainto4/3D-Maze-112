@@ -6,10 +6,29 @@ from Show2DMaze import*
 from show3DMaze import*
 from StartingPage import*
 from HelpPage import*
+from ScoresClass import*
 
 def appStarted(app):
+    
     app.mode = "start"
     app.timePassed = 0
+
+    app.player = 6
+    # list of players
+    app.players = []
+    # Pictures by Johanna Park from 112 hackathon
+    app.pink = app.loadImage('PinkPlayer.png')
+    app.blue = app.loadImage('BluePlayer.png')
+    app.purple = app.loadImage('PurplePlayer.png')
+    app.white = app.loadImage('WhitePlayer.png')
+    app.green = app.loadImage('GreenPlayer.png')
+    app.yellow = app.loadImage('YellowPlayer.png')
+    app.players.append(app.pink)
+    app.players.append(app.blue)
+    app.players.append(app.purple)
+    app.players.append(app.green)
+    app.players.append(app.yellow)
+    app.players.append(app.white)
 
     # the values for 2D maze
     app.testMaze2D = Maze(25, 25, 100)
@@ -18,19 +37,39 @@ def appStarted(app):
     app.rowWidth2D = (app.height - 2 * app.margin2D) / (len(app.testMaze2D.board))
     app.testMaze2D.generateMaze()
     app.board2D = app.testMaze2D.board
+    app.copyBoard = []
     app.pCol2D = 1
     app.pRow2D = 1
     app.finish2D = False
     app.drawSolution2D = False
     app.error2D = False
+    app.enlarge = False
+    app.size = 9
     app.visited2D = set()
+    app.startTime2D = time.time()
+    app.currTime2D = 0
+    app.moveTime2D = False
     twoD_findSolution(app)
     app.prevSize2D = 25
+    app.changePlayer = MyButton(app.width * 4.75/11, app.height * 0.25/11, 
+                        app.width * 6.8/11, app.height * 0.75/11, "Player(a)", 
+                        16)
     app.generateMazeButton2D = MyButton(app.width * 7/11, app.height * 0.25/11, 
                             app.width * 8.8/11, app.height * 0.75/11, "Generate", 
                             16)
     app.input2D = CommandBar(app.width * 9/11, app.height * 0.25/11, 
                             app.width * 10/11, app.height * 0.75/11, 16)
+    app.button2D  = []
+    app.button2D.append(app.changePlayer)
+    app.button2D.append(app.generateMazeButton2D)
+    app.button2D.append(app.input2D)
+
+    app.endRetry = MyButton(app.width * 4/11, app.height * 5.5/11, 
+                        app.width * 7/11, app.height * 5.9/11, "Retry(r)", 
+                        14)
+    app.endBack = MyButton(app.width * 4/11, app.height * 6/11, 
+                        app.width * 7/11, app.height * 6.4/11, "Back(b)", 
+                        14)
     
 
     # the values for the 3D maze
@@ -51,12 +90,23 @@ def appStarted(app):
     threeD_findSolution(app)
     app.error3D = False
     app.prevSize3D = 5
+    app.startTime3D = time.time()
+    app.currTime3D = 0
+    app.moveTime3D = False
     app.generateMazeButton3D = MyButton(app.width * 7/11, app.height * 0.25/11, 
                             app.width * 8.8/11, app.height * 0.75/11, "Generate", 
                             16)
     app.input3D = CommandBar(app.width * 9/11, app.height * 0.25/11, 
                             app.width * 10/11, app.height * 0.75/11, 16)
-
+    app.menuButton = MyButton(app.width * 0.25/11, app.height * 0.25/11, 
+                            app.width * 1.5/11, app.height * 0.75/11, "Menu", 
+                            16)
+    app.button3D = []
+    app.button3D.append(app.generateMazeButton3D)
+    app.button3D.append(app.input3D)
+    app.button3D.append(app.menuButton)
+    # https://www.vvidget.com/manuals/GraphIDE/Data3DGraphics/Graph/index.html
+    app.graph = app.loadImage('3D Graph.png')
     # the corners of the maze
     # I divided the window into 11 * 11 boxes
     app.zx1 = app.width * 1 / 11
@@ -98,17 +148,24 @@ def appStarted(app):
     app.startButtons.append(button3)
 
 
-
 runApp(width=800, height=800)
 
 
-# Questions for TP 2
-# Import numpy and debug the rotation
-# Can store a function inside an object button such that 
-# it will execute when pressed
+# the white background in a circle - how to delete that
+# now it is possible to work with smoothly with a large maze
+# is it possible to increase the size
 
+# To do list
+# Find a way to store it on the computer
+# customize axolot heads
+# add more and more buttons 
+#       change color
+#       show answer
+#       A menu is needed
+#       I don't have time though
+#       just change colors then
+#       good enough
 
-# Todo list
-# backtracking algorithm for both mazes and somehow show them
-# the input bar + commands needed
-# delete boxes after used
+# add buttons for the end screen for
+# Too difficult to store the score as it is not valid?
+# calculate the score based on the time? - LAZY BUG 
