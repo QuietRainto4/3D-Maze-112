@@ -1,6 +1,7 @@
 from cmu_112_graphics import*
 import math
 from ButtonClass import*
+
 # make 3D maze that you can see and drag
 # include help funciton and instructions
 def start_redrawAll(app, canvas):
@@ -28,11 +29,22 @@ def start_drawMaze(app, canvas):
                 y1 = app.rowWidthBack * numRow
                 x2 = app.colWidthBack * (numCol + 1)
                 y2 = app.colWidthBack * (numRow + 1)
-                
-                r1, theta1 = cartasianToPolar(app, x1, y1)
-                r2, theta2 = cartasianToPolar(app, x2, y2)
-                x1, y1 = polarToCartasian(app, r1, theta1)
-                x2, y2 = polarToCartasian(app, r2, theta2)
+
+                # rotateMatrix = numpy.array([[math.cos(app.theta), -math.sin(app.theta)],
+                #                              [math.sin(app.theta), math.cos(app.theta)]])
+                # firstPoint = numpy.array([[x1], [y1]])
+                # secondPoint = numpy.array([[x2], [y2]])
+                # newfPoint = numpy.matmul(rotateMatrix, firstPoint)
+                # newsPoint = numpy.matmul(rotateMatrix, secondPoint)
+                # newX1 = newfPoint[0, 0]
+                # newY1 = newfPoint[1, 0]
+                # newX2 = newsPoint[0, 0]
+                # newY2 = newsPoint[1, 0]
+
+                # r1, theta1 = cartasianToPolar(app, x1, y1)
+                # r2, theta2 = cartasianToPolar(app, x2, y2)
+                # x1, y1 = polarToCartasian(app, r1, theta1)
+                # x2, y2 = polarToCartasian(app, r2, theta2)
 
                 canvas.create_rectangle(
                     x1, y1, x2, y2,
