@@ -17,6 +17,7 @@ def twoD_drawMaze(app, canvas):
 
 # draws on the canvas
 def twoD_redrawAll(app, canvas):
+    twoD_drawTime(app, canvas)
     if app.enlarge == False:
         twoD_drawMaze(app, canvas)
         if app.drawSolution2D == True:
@@ -24,7 +25,6 @@ def twoD_redrawAll(app, canvas):
         twoD_drawGoal(app, canvas)
         twoD_drawPlayer(app, canvas)
     else:
-        
         if app.drawSolution2D == True:
             sBoard = twoD_includeSolution(app)
             newBoard = twoD_partOfBoard(app, sBoard)
@@ -32,10 +32,13 @@ def twoD_redrawAll(app, canvas):
             newBoard = twoD_partOfBoard(app, app.board2D)
         twoD_enlargedMaze(app, canvas, newBoard)
 
+    # if the player has reached the end, draw the end screen
     if app.finish2D == True:
         twoD_drawEnd(app, canvas)
-    app.input2D.drawButton(app, canvas)
-    app.generateMazeButton2D.drawButton(app, canvas)
+    # draws the buttons
+    for button in app.button2D:
+        button.drawButton(app, canvas)
+    # for the flickering bar
     if app.timePassed % 10 < 5 and app.input2D.type == True:
         app.input2D.drawInsersionPoint(app, canvas)
     if app.error2D == True:
@@ -54,7 +57,8 @@ def twoD_includeSolution(app):
             
 
 # draws the enlarged portion of the maze in app.enlarge == True
-# for the solution board, if the point is in the set, then draw it as solution
+# for the solution board, if the point is in the set
+# then draw it as solution
 def twoD_enlargedMaze(app, canvas, newBoard):
     width = (app.width - 2 * app.margin2D) / app.size
     height = (app.height - 2 * app.margin2D) / app.size
@@ -67,14 +71,6 @@ def twoD_enlargedMaze(app, canvas, newBoard):
                     app.margin2D + width * (numCol + 1),
                     app.margin2D + height * (numRow + 1),
                     fill = "pink")
-            elif (numRow == len(newBoard) // 2 and 
-                numCol == len(newBoard[0]) // 2):
-                canvas.create_oval(
-                    app.margin2D + width * numCol,
-                    app.margin2D + height * numRow,
-                    app.margin2D + width * (numCol + 1),
-                    app.margin2D + height * (numRow + 1),
-                    fill = "red")
             elif newBoard[numRow][numCol] == 1:
                 canvas.create_rectangle(
                     app.margin2D + width * numCol,
@@ -89,18 +85,39 @@ def twoD_enlargedMaze(app, canvas, newBoard):
                     app.margin2D + width * (numCol + 1),
                     app.margin2D + height * (numRow + 1),
                     fill = "light blue", outline = "light blue")
+            
+            if (numRow == len(newBoard) // 2 and 
+                    numCol == len(newBoard[0]) // 2):
+                if app.player == 6:
+                    canvas.create_oval(
+                        app.margin2D + width * numCol,
+                        app.margin2D + height * numRow,
+                        app.margin2D + width * (numCol + 1),
+                        app.margin2D + height * (numRow + 1),
+                        fill = "red")
+                else:
+                    cx = (2 * app.margin2D + width *(2 * numCol + 1)) / 2
+                    cy = (2 * app.margin2D + height *(2 * numRow + 1)) / 2
+                    # 400 is the size of the image
+                    size = width / 300 
+                    image = app.players[app.player]
+                    player = app.scaleImage(image, size)
+                    canvas.create_image(cx, cy, 
+                                    image=ImageTk.PhotoImage(player))
 
-# returns the 9 * 9 surrounding of the board, keeping the player in the center at all times
+# returns the 9 * 9 surrounding of the board, keeping the player 
+#                           in the center at all times
 # if it is out of the board, it is represented by a 0
 def twoD_partOfBoard(app, board):
     newBoard = []
     for i in range(app.size):
         newBoard.append([0] * app.size)
-    # app.pCol2D, app.pRow2D
     i = 0
-    for row in range(app.pRow2D - app.size//2, app.pRow2D + app.size//2 + 1):
+    for row in range(app.pRow2D - app.size//2, 
+                    app.pRow2D + app.size//2 + 1):
         j = 0
-        for col in range(app.pCol2D - app.size//2, app.pCol2D + app.size//2 + 1):
+        for col in range(app.pCol2D - app.size//2, 
+                    app.pCol2D + app.size//2 + 1):
             if (row >= 0 and row < len(board) and 
                 col >= 0 and col < len(board)):
                 newBoard[i][j] = board[row][col]
@@ -113,7 +130,6 @@ def twoD_partOfBoard(app, board):
 
 # detects key presses and moves player depending on it
 def twoD_keyPressed(app, event):
-    print(event.key)
     if (app.input2D.type and event.key.isdigit() and len(event.key) == 1):
         if len(app.input2D.text) >= 3:
             app.input2D.text = app.input2D.text[1:]
@@ -122,14 +138,6 @@ def twoD_keyPressed(app, event):
         twoD_generateMaze(app)
     elif event.key == "Backspace":
         app.input2D.text = app.input2D.text[:-1]
-    elif event.key == "Right":
-        twoD_movePlayer(app, 0, 1)
-    elif event.key == "Left":
-        twoD_movePlayer(app, 0, -1)
-    elif event.key == "Up":
-        twoD_movePlayer(app, -1, 0)
-    elif event.key == "Down":
-        twoD_movePlayer(app, 1, 0)
     elif event.key == 'r':
         twoD_reset(app)
     elif event.key == 'b':
@@ -142,12 +150,34 @@ def twoD_keyPressed(app, event):
         app.mode = "help"
     elif event.key == "f":
         app.enlarge = not app.enlarge
+    elif event.key == "a":
+        twoD_playerIncrease(app)
     elif event.key == "minus":
         if app.size < 25:
             app.size += 2
     elif event.key == "equal":
         if app.size > 1:
             app.size -= 2
+
+    notMove = False
+    # when the player reaches the end, stop any action
+    if app.finish2D == True:
+        return 
+    elif event.key == "Right":
+        twoD_movePlayer(app, 0, 1)
+    elif event.key == "Left":
+        twoD_movePlayer(app, 0, -1)
+    elif event.key == "Up":
+        twoD_movePlayer(app, -1, 0)
+    elif event.key == "Down":
+        twoD_movePlayer(app, 1, 0)
+    else:
+        notMove = True
+    # start the timer if the key pressed is up down left or right
+    if notMove == False:
+        if app.moveTime2D == False:
+            app.moveTime2D = True
+            app.startTime2D = time.time()
 
 
 # resets the board for the player to play again
@@ -163,6 +193,9 @@ def twoD_reset(app):
     app.drawSolution2D = False
     app.visited2D = set()
     twoD_findSolution(app)
+    app.startTime2D = time.time()
+    app.currTime2D = 0
+    app.moveTime2D = False
 
 # move the player if is possible
 def twoD_movePlayer(app, drow, dcol):
@@ -172,23 +205,33 @@ def twoD_movePlayer(app, drow, dcol):
 
 # draws the player as a red not
 def twoD_drawPlayer(app, canvas):
-    canvas.create_oval(app.margin2D + app.colWidth2D * app.pCol2D,
-                    app.margin2D + app.rowWidth2D * app.pRow2D,
-                    app.margin2D + app.colWidth2D * (app.pCol2D + 1),
-                    app.margin2D + app.colWidth2D * (app.pRow2D + 1),
-                    fill = "red")
+    if app.player == 6:
+        canvas.create_oval(app.margin2D + app.colWidth2D * app.pCol2D,
+                        app.margin2D + app.rowWidth2D * app.pRow2D,
+                        app.margin2D + app.colWidth2D * (app.pCol2D + 1),
+                        app.margin2D + app.colWidth2D * (app.pRow2D + 1),
+                        fill = "red")
+    else:
+        cx = (2 * app.margin2D + app.colWidth2D *(2 * app.pCol2D + 1)) / 2
+        cy = (2 * app.margin2D + app.rowWidth2D *(2 * app.pRow2D + 1)) / 2
+        # 400 is the size of the image
+        size = app.colWidth2D / 300 
+        image = app.players[app.player]
+        player = app.scaleImage(image, size)
+        canvas.create_image(cx, cy, 
+                        image=ImageTk.PhotoImage(player))
 
 # draws the end screen that pops up after the player had reached the end
 def twoD_drawEnd(app, canvas):
     canvas.create_rectangle(app.width * 3 / 11, app.height * 4 / 11,
                 app.width * 8 / 11, app.height * 7 / 11, fill = "white",
                 outline = "black", width = app.width / 100)
-    canvas.create_text(app.width * 5.5 / 11, app.height * 5 / 11,
+    canvas.create_text(app.width * 5.5 / 11, app.height * 4.75 / 11,
                 text = "Congradulations", font = "Ariel 24 bold")
-    canvas.create_text(app.width * 5.5 / 11, app.height * 5.5 / 11,
-                text = "Press R to play again", font = "Ariel 16 bold")
-    canvas.create_text(app.width * 5.5 / 11, app.height * 5.9 / 11,
-                text = "Or press B to return to Main Menu", font = "Ariel 16 bold")
+    canvas.create_text(app.width * 5.5 / 11, app.height * 5.25 / 11,
+                text = f"time: {app.currTime2D}", font = "Ariel 16 bold")
+    app.endRetry.drawButton(app, canvas)
+    app.endBack.drawButton(app, canvas)
 
 # checks if the player reached the end
 def twoD_reachedEnd(app):
@@ -212,6 +255,8 @@ def twoD_drawError(app, canvas):
     canvas.create_text(app.width * 5.5 / 11, app.height * 6.3 / 11,
                 text = "press c to exit", font = "Ariel 14 bold")
 
+# When enter is pressed or when the generate button is pressed
+# generate a new maze
 def twoD_generateMaze(app):
     if len(app.input2D.text) == 0 or int(app.input2D.text) > 100 or int(app.input2D.text) <= 1:
         app.error2D = True
@@ -233,17 +278,41 @@ def twoD_generateMaze(app):
     app.visited2D = set()
     twoD_findSolution(app)
     app.generateMazeButton2D.pressed = False
+    app.startTime2D = time.time()
+    app.currTime2D = 0
+    app.moveTime2D = False
+    
 
 # called every run
 # checks if the player reached the end or not
 def twoD_timerFired(app):
     twoD_reachedEnd(app)
+    # if at end, stop moving
+    if app.finish2D == True:
+        app.moveTime2D = False
     app.timePassed += 1
+    if app.moveTime2D == False:
+        app.currTime2D = app.currTime2D
+    else:
+        app.currTime2D = int(time.time() - app.startTime2D)
+    
+    # Check if the buttons are pressed
     if app.generateMazeButton2D.pressed == True:
+        app.generateMazeButton2D.pressed = False
         twoD_generateMaze(app)
+    if app.changePlayer.pressed == True:
+        app.changePlayer.pressed = False
+        twoD_playerIncrease(app)
+    if app.finish2D == True:
+        if app.endRetry.pressed == True:
+            app.endRetry.pressed = False
+            twoD_reset(app)
+        if app.endBack.pressed == True:
+            app.endBack.pressed = False
+            app.mode = "start"
 
 def twoD_findSolution(app):
-    print(twoD_solutionHelper(app, 1, 1))
+    twoD_solutionHelper(app, 1, 1)
 
 # helper function to return the list of solution
 # modified based on the 112 notes
@@ -288,6 +357,21 @@ def twoD_mousePressed(app, event):
         app.input2D.type = not app.input2D.type
     elif app.generateMazeButton2D.inRectangle(event.x, event.y):
         app.generateMazeButton2D.pressed = True
+    elif app.changePlayer.inRectangle(event.x, event.y):
+        app.changePlayer.pressed = True
+    if app.finish2D == True:
+        if app.endRetry.inRectangle(event.x, event.y):
+            app.endRetry.pressed = True
+        elif app.endBack.inRectangle(event.x, event.y):
+            app.endBack.pressed = True
     
+# draw time
+def twoD_drawTime(app, canvas):
+    canvas.create_text(app.width * 3 / 11, app.height * 0.5 / 11,
+                text = f"time: {app.currTime2D}", font = "Ariel 20")
 
-
+# switch player character
+def twoD_playerIncrease(app):
+    app.player += 1
+    if app.player > 6:
+        app.player = 0
