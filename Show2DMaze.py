@@ -147,7 +147,7 @@ def twoD_keyPressed(app, event):
     elif event.key == "c":
         app.error2D = not app.error2D
     elif event.key == "h":
-        app.mode = "help"
+        app.mode = "help2D"
     elif event.key == "f":
         app.enlarge = not app.enlarge
     elif event.key == "a":
