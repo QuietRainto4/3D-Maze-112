@@ -83,7 +83,7 @@ def start_timerFired(app):
         app.mode = 'threeD'
         app.startButtons[1].pressed = False
     elif app.startButtons[2].pressed == True:
-        app.mode = 'help'
+        app.mode = 'layer3D'
         app.startButtons[2].pressed = False
 
 
