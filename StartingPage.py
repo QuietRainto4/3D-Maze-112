@@ -1,9 +1,9 @@
+# the file that draws the starting page
+
 from cmu_112_graphics import*
 import math
 from ButtonClass import*
 
-# make 3D maze that you can see and drag
-# include help funciton and instructions
 def start_redrawAll(app, canvas):
     start_drawMaze(app, canvas)
     canvas.create_image(app.width / 2, app.height * 2/11, 
