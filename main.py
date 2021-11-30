@@ -6,7 +6,11 @@ from Show2DMaze import*
 from show3DMaze import*
 from StartingPage import*
 from HelpPage import*
+from Help3DPage import*
+from Help3LPage import*
+from Help2DPage import*
 from Layer3D import*
+
 
 def appStarted(app):
     
@@ -98,13 +102,34 @@ def appStarted(app):
                             16)
     app.input3D = CommandBar(app.width * 9/11, app.height * 0.25/11, 
                             app.width * 10/11, app.height * 0.75/11, 16)
-    app.menuButton = MyButton(app.width * 0.25/11, app.height * 0.25/11, 
-                            app.width * 1.5/11, app.height * 0.75/11, "Menu", 
-                            16)
+    app.plusCharacter = irrButton(app.width * 6.5/11, app.height * 2/11, 
+                            app.width * 7/11, app.height * 2.5/11, 1)
+    app.decreaseCharacter = irrButton(app.width * 9/11, app.height * 2/11, 
+                            app.width * 9.5/11, app.height * 2.5/11, 0)
+    app.zButton = OnOffButton(app.width * 7/11, app.height * 3.75/11, 
+                            app.width * 8/11, app.height * 4.25/11, "Z Switch", 
+                            12, 0.1, True)
+    app.xButton = OnOffButton(app.width * 7/11, app.height * 4.5/11, 
+                            app.width * 8/11, app.height * 5/11, "X Switch", 
+                            12, 0.1, True)
+    app.yButton = OnOffButton(app.width * 9/11, app.height * 4.5/11, 
+                            app.width * 10/11, app.height * 5/11, "Y Switch", 
+                            12, 0.1, True)
+
+    # the images for the buttons
+    # https://www.vectorstock.com/royalty-free-vector/on-and-off-icon-editable-switch-button-sign-vector-28695671
+    app.onButton = app.loadImage('On Button.png')
+    app.offButton = app.loadImage('Off Button.png')
+
     app.button3D = []
     app.button3D.append(app.generateMazeButton3D)
     app.button3D.append(app.input3D)
-    app.button3D.append(app.menuButton)
+    app.button3D.append(app.zButton)
+    app.button3D.append(app.xButton)
+    app.button3D.append(app.yButton)
+    app.button3D.append(app.plusCharacter)
+    app.button3D.append(app.decreaseCharacter)
+
     # https://www.vvidget.com/manuals/GraphIDE/Data3DGraphics/Graph/index.html
     app.graph = app.loadImage('3D Graph.png')
     # the corners of the maze
@@ -133,19 +158,24 @@ def appStarted(app):
     app.background.generateMaze()
     app.boardBack = app.background.board
     app.theta = 0
-    button1 = MyButton(app.width * 3/11, app.height * 5/11,
-                        app.width * 8/11, app.height * 6/11,
+    button1 = MyButton(app.width * 3/11, app.height * 4/11,
+                        app.width * 8/11, app.height * 5/11,
                         "2D Maze", 36)
-    button2 = MyButton(app.width * 3/11, app.height * 6.5/11,
-                        app.width * 8/11, app.height * 7.5/11,
+    button2 = MyButton(app.width * 3/11, app.height * 5.5/11,
+                        app.width * 8/11, app.height * 6.5/11,
                         "3D Maze", 36)
-    button3 = MyButton(app.width * 3/11, app.height * 8/11,
-                        app.width * 8/11, app.height * 9/11,
+    button3 = MyButton(app.width * 3/11, app.height * 7/11,
+                        app.width * 8/11, app.height * 8/11,
+                        "3D Layer", 36)
+    button4 = MyButton(app.width * 3/11, app.height * 8.5/11,
+                        app.width * 8/11, app.height * 9.5/11,
                         "Help", 36)
     app.startButtons = []
     app.startButtons.append(button1)
     app.startButtons.append(button2)
     app.startButtons.append(button3)
+    app.startButtons.append(button4)
+
 
     # a third mode where the player can only see the horizontal layer
     # it is very similar to the 2D representation
@@ -175,12 +205,15 @@ def appStarted(app):
     app.generateMazeButton3L = MyButton(app.width * 7/11, app.height * 0.25/11, 
                             app.width * 8.8/11, app.height * 0.75/11, "Generate", 
                             16)
+    app.changePlayer = MyButton(app.width * 4.75/11, app.height * 0.25/11, 
+                        app.width * 6.8/11, app.height * 0.75/11, "Player(a)", 
+                        16)
     app.input3L = CommandBar(app.width * 9/11, app.height * 0.25/11, 
                             app.width * 10/11, app.height * 0.75/11, 16)
     app.button3L = []
     app.button3L.append(app.generateMazeButton3L)
     app.button3L.append(app.input3L)
-    print3dList(app.board3L)
+    app.button3L.append(app.changePlayer)
 
 runApp(width=800, height=800)
 
