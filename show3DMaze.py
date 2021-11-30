@@ -2,6 +2,7 @@ from cmu_112_graphics import*
 from MazeClass import*
 from ButtonClass import*
 import copy 
+import time
 
 # from 112 notes
 def repr2dList(L):
@@ -114,6 +115,13 @@ def threeD_mousePressed(app, event):
         app.input3D.type = not app.input3D.type
     elif app.generateMazeButton3D.inRectangle(event.x, event.y):
         app.generateMazeButton3D.pressed = True
+    elif app.changePlayer.inRectangle(event.x, event.y):
+        app.changePlayer.pressed = True
+    if app.finish2D == True:
+        if app.endRetry.inRectangle(event.x, event.y):
+            app.endRetry.pressed = True
+        elif app.endBack.inRectangle(event.x, event.y):
+            app.endBack.pressed = True
 
 # does action based on the key that is pressed
 def threeD_keyPressed(app, event):
@@ -125,7 +133,24 @@ def threeD_keyPressed(app, event):
         threeD_generateMaze(app)
     elif event.key == "Backspace":
         app.input3D.text = app.input3D.text[:-1]
-    elif event.key == "Right":
+
+    # for changing modes
+    elif event.key == "b":
+        app.mode = "start"
+    elif event.key == "r":
+        threeD_reset(app)
+    elif event.key == "s":
+        app.drawSolution3D = not app.drawSolution3D
+    elif event.key == "c":
+        app.error3D = False
+    elif event.key == "h":
+        app.mode = "help"
+    elif event.key == "a":
+        threeD_playerIncrease(app)
+
+    # keys for player movement
+    notMove = False
+    if event.key == "Right":
         threeD_movePlayer(app, 0, 1, 0)
     elif event.key == "Left":
         threeD_movePlayer(app, 0, -1, 0)
@@ -137,17 +162,14 @@ def threeD_keyPressed(app, event):
         threeD_movePlayer(app, 0, 0, 1)
     elif event.key == "x":
         threeD_movePlayer(app, 0, 0, -1)
-    # for chaning modes
-    elif event.key == "b":
-        app.mode = "start"
-    elif event.key == "r":
-        threeD_reset(app)
-    elif event.key == "s":
-        app.drawSolution3D = not app.drawSolution3D
-    elif event.key == "c":
-        app.error3D = False
-    elif event.key == "h":
-        app.mode = "help"
+    else:
+        notMove = True
+    
+    # start the timer if the key pressed is up down left or right
+    if notMove == False:
+        if app.moveTime3D == False:
+            app.moveTime3D = True
+            app.startTime3D = time.time()
 
 # resets the value and generate another maze for the player to play
 def threeD_reset(app):
@@ -166,6 +188,9 @@ def threeD_reset(app):
     app.visited3D = set()
     app.drawSolution3D = False
     threeD_findSolution(app)
+    app.startTime3D = time.time()
+    app.currTime3D = 0
+    app.moveTime3D = False
 
 # when the generate button is pressed 
 def threeD_generateMaze(app):
@@ -195,6 +220,9 @@ def threeD_generateMaze(app):
     app.drawSolution3D = False
     app.error3D = False
     threeD_findSolution(app)
+    app.startTime3D = time.time()
+    app.currTime3D = 0
+    app.moveTime3D = False
 
 # move the position of the player
 def threeD_movePlayer(app, drow, dcol, dheight):
@@ -213,14 +241,36 @@ def threeD_timerFired(app):
     app.boardP3D[app.pHeight3D][app.pRow3D][app.pCol3D] = "p"
     if app.drawSolution3D == True:
         threeD_includeSolution(app)
+        # Check if the buttons are pressed
+
     if app.generateMazeButton3D.pressed == True:
+        app.generateMazeButton3D.pressed = False
         threeD_generateMaze(app)
+    if app.finish3D == True:
+        if app.endRetry.pressed == True:
+            app.endRetry.pressed = False
+            threeD_reset(app)
+        if app.endBack.pressed == True:
+            app.endBack.pressed = False
+            app.mode = "start"
+    
+    # if at end, stop moving
+    if app.finish3D == True:
+        app.moveTime3D = False
+    app.timePassed += 1
+    if app.moveTime3D == False:
+        app.currTime3D = app.currTime3D
+    else:
+        app.currTime3D = int(time.time() - app.startTime3D)
+
 
 def threeD_redrawAll(app, canvas):
     # set the coordinate to what the person is in as 'p'
     zBoard = threeD_zSection(app)
     yBoard = threeD_ySection(app)
     xBoard = threeD_xSection(app)
+    canvas.create_image(app.width * 8/11, app.height * 3/11, 
+                        image=ImageTk.PhotoImage(app.graph))
     canvas.create_text((app.zx1 + app.zx2) / 2, app.height * 1/22,
                         text = f'z = {app.pHeight3D}', font = "ariel 16")
     threeD_drawMaze(app, canvas, zBoard, app.zx1, app.zy1, 
@@ -233,6 +283,11 @@ def threeD_redrawAll(app, canvas):
                         text = f'x = {app.pCol3D}', font = "ariel 16")
     threeD_drawMaze(app, canvas, xBoard, app.xx1, app.xy1, 
                 app.xx2, app.xy2)
+    # draws the buttons
+    for button in app.button3D:
+        button.drawButton(app, canvas)
+    threeD_drawTime(app, canvas)
+
     # return the board to original after
     if app.finish3D:
         threeD_drawEnd(app, canvas)
@@ -242,6 +297,8 @@ def threeD_redrawAll(app, canvas):
         app.input3D.drawInsersionPoint(app, canvas)
     if app.error3D == True:
         threeD_drawError(app, canvas)
+    
+    
 
 # checks if p in on the end by 
 def threeD_reachedEnd(app):
@@ -257,12 +314,12 @@ def threeD_drawEnd(app, canvas):
     canvas.create_rectangle(app.width * 3 / 11, app.height * 4 / 11,
                 app.width * 8 / 11, app.height * 7 / 11, fill = "white",
                 outline = "black", width = app.width / 100)
-    canvas.create_text(app.width * 5.5 / 11, app.height * 5 / 11,
+    canvas.create_text(app.width * 5.5 / 11, app.height * 4.75 / 11,
                 text = "Congradulations", font = "Ariel 24 bold")
-    canvas.create_text(app.width * 5.5 / 11, app.height * 5.5 / 11,
-                text = "Press R to play again", font = "Ariel 16 bold")
-    canvas.create_text(app.width * 5.5 / 11, app.height * 5.9 / 11,
-                text = "Or press B to return to Main Menu", font = "Ariel 16 bold")
+    canvas.create_text(app.width * 5.5 / 11, app.height * 5.25 / 11,
+                text = f"time: {app.currTime3D}", font = "Ariel 16 bold")
+    app.endRetry.drawButton(app, canvas)
+    app.endBack.drawButton(app, canvas)
 
 def threeD_findSolution(app):
     threeD_solutionHelper(app, 1, 1, 1)
@@ -309,3 +366,14 @@ def threeD_drawError(app, canvas):
                 text = "within 1 - 35", font = "Ariel 14 bold")
     canvas.create_text(app.width * 5.5 / 11, app.height * 6.3 / 11,
                 text = "press c to exit", font = "Ariel 14 bold")
+
+# draw time
+def threeD_drawTime(app, canvas):
+    canvas.create_text(app.width * 5 / 11, app.height * 0.5 / 11,
+                text = f"time: {app.currTime3D}", font = "Ariel 20")
+
+# switch player character
+def threeD_playerIncrease(app):
+    app.player += 1
+    if app.player > 6:
+        app.player = 0
