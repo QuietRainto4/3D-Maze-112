@@ -1,6 +1,8 @@
 # cmu_112_graphics.py
 # version 0.9.0
 
+# from 112 notes
+
 # Pre-release for CMU 15-112-f21
 
 # Require Python 3.6 or later
