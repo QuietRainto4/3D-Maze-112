@@ -1,3 +1,5 @@
+# the help page with instructions for the 2D game
+
 from cmu_112_graphics import*
 
 def help2D_redrawAll(app, canvas):
@@ -21,8 +23,6 @@ def help2D_drawInstructions(app, canvas):
     b - goes back to the main screen
     c - closes the error window
     arrow keys - go left, right, up, down in the maze
-    z - go up vertically in the 3d maze
-    x - go down verticaly in the 3d maze
     h - opens up the help page
     f - enlarges the maze
     cmd + - will increase the size of the maze in the 
