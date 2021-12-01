@@ -254,18 +254,20 @@ def twoD_drawError(app, canvas):
     canvas.create_text(app.width * 5.5 / 11, app.height * 5.5 / 11,
                 text = "Please make sure the number is ", font = "Ariel 14 bold")
     canvas.create_text(app.width * 5.5 / 11, app.height * 5.9 / 11,
-                text = "within 1 - 100", font = "Ariel 14 bold")
+                text = "within 1 - 120", font = "Ariel 14 bold")
     canvas.create_text(app.width * 5.5 / 11, app.height * 6.3 / 11,
                 text = "press c to exit", font = "Ariel 14 bold")
 
 # When enter is pressed or when the generate button is pressed
 # generate a new maze
 def twoD_generateMaze(app):
-    if len(app.input2D.text) == 0 or int(app.input2D.text) > 100 or int(app.input2D.text) <= 1:
-        app.error2D = True
-        return
+    
     if len(app.input2D.text) == 0:
-            app.testMaze2D = Maze(app.prevSize2D, app.prevSize2D, 100)
+        app.testMaze2D = Maze(app.prevSize2D, app.prevSize2D, 100)
+    if len(app.input2D.text) == 0 or int(app.input2D.text) > 120 or int(app.input2D.text) < 1:
+        app.error2D = True
+        app.input2D.text = ""
+        return
     else:
         app.testMaze2D = Maze(int(app.input2D.text), int(app.input2D.text), 100)
         app.prevSize2D = int(app.input2D.text)
@@ -302,6 +304,9 @@ def twoD_timerFired(app):
     if app.generateMazeButton2D.pressed == True:
         app.generateMazeButton2D.pressed = False
         twoD_generateMaze(app)
+    if app.input2D.pressed == True:
+        app.input2D.pressed = False
+        app.input2D.type = not app.input2D.type
     if app.changePlayer.pressed == True:
         app.changePlayer.pressed = False
         twoD_playerIncrease(app)
