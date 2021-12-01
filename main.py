@@ -1,5 +1,8 @@
 # the main file for all the different screens
 # includes all variables used throughout the entire game
+# feedback from taking with other people on Tuesday
+# Add a help page for instructions
+# explain how the 3D maze mode work better
 
 from cmu_112_graphics import*
 from MazeClass import*
@@ -14,7 +17,6 @@ from Layer3D import*
 
 
 def appStarted(app):
-    
     app.mode = "start"
     app.timePassed = 0
     app.margin = 70
@@ -206,7 +208,7 @@ def appStarted(app):
     app.generateMazeButton3L = MyButton(app.width * 7/11, app.height * 0.25/11, 
                             app.width * 8.8/11, app.height * 0.75/11, "Generate", 
                             16)
-    app.changePlayer = MyButton(app.width * 4.75/11, app.height * 0.25/11, 
+    app.changePlayer3L = MyButton(app.width * 4.75/11, app.height * 0.25/11, 
                         app.width * 6.8/11, app.height * 0.75/11, "Player(a)", 
                         16)
     app.input3L = CommandBar(app.width * 9/11, app.height * 0.25/11, 
@@ -214,7 +216,7 @@ def appStarted(app):
     app.button3L = []
     app.button3L.append(app.generateMazeButton3L)
     app.button3L.append(app.input3L)
-    app.button3L.append(app.changePlayer)
+    app.button3L.append(app.changePlayer3L)
 
 runApp(width=800, height=800)
 
