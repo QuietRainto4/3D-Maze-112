@@ -9,6 +9,8 @@ import time
 # the only new function if the layer3D_includeSign function
 
 def layer3D_redrawAll(app, canvas):
+    canvas.create_text(app.width/11, app.height * 1/22,
+                        text = f'z = {app.pHeight3L}', font = "ariel 16")
     layer3D_drawTime(app, canvas)
     # the normal layer board
     board = getBoard(app, app.board3L)
@@ -255,8 +257,9 @@ def layer3D_generateMaze(app):
     if len(app.input3L.text) == 0:
         app.testMaze3L = threeDMaze(app.prevSize3L, 
                                     app.prevSize3L, app.prevSize3L, 100)
-    elif int(app.input3L.text) >= 35 or int(app.input3L.text) <= 1:
+    elif int(app.input3L.text) > 35 or int(app.input3L.text) < 1:
         app.error3L = True
+        app.input3L.text = ""
         return
     else:
         app.testMaze3L = threeDMaze(int(app.input3L.text), 
@@ -327,8 +330,8 @@ def layer3D_timerFired(app):
     if app.input3L.pressed == True:
         app.input3L.pressed = False
         app.input3L.type = True
-    if app.changePlayer.pressed == True:
-        app.changePlayer.pressed = False
+    if app.changePlayer3L.pressed == True:
+        app.changePlayer3L.pressed = False
         twoD_playerIncrease(app)
     if app.finish3L == True:
         if app.endRetry.pressed == True:
@@ -346,7 +349,7 @@ def layer3D_keyPressed(app, event):
             app.input3L.text = app.input3L.text[1:]
         app.input3L.text += event.key
     elif event.key == "Enter":
-        threeD_generateMaze(app)
+        layer3D_generateMaze(app)
     elif event.key == "Backspace":
         app.input3L.text = app.input3L.text[:-1]
 
