@@ -7,47 +7,11 @@ from ButtonClass import*
 import copy 
 import time
 
-# from 112 notes
-def repr2dList(L):
-    if (L == []): return '[]'
-    output = [ ]
-    rows = len(L)
-    cols = max([len(L[row]) for row in range(rows)])
-    M = [['']*cols for row in range(rows)]
-    for row in range(rows):
-        for col in range(len(L[row])):
-            M[row][col] = repr(L[row][col])
-    colWidths = [0] * cols
-    for col in range(cols):
-        colWidths[col] = max([len(M[row][col]) for row in range(rows)])
-    output.append('[\n')
-    for row in range(rows):
-        output.append(' [ ')
-        for col in range(cols):
-            if (col > 0):
-                output.append(', ' if col < len(L[row]) else '  ')
-            output.append(M[row][col].rjust(colWidths[col]))
-        output.append((' ],' if row < rows-1 else ' ]') + '\n')
-    output.append(']')
-    return ''.join(output)
-
-def print2dList(L):
-    print(repr2dList(L))
-
-def print3dList(L):
-    for layer in L:
-        print2dList(layer)
-
 # draws the maze based on the board that it was in
 def threeD_drawMaze(app, canvas, board, x1, y1, x2, y2):
     for numRow in range(len(board)):
         for numCol in range(len(board[0])):
-            if isinstance(board[numRow][numCol], tuple):
-                for elem in board[numRow][numCol]:
-                    threeD_drawBox(app, canvas, board, elem, 
-                                x1, y1, x2, y2, numRow, numCol)
-            else:
-                threeD_drawBox(app, canvas, board, board[numRow][numCol], 
+            threeD_drawBox(app, canvas, board, board[numRow][numCol], 
                                 x1, y1, x2, y2, numRow, numCol)
 
 # draws the indivdual box in the maze
@@ -101,6 +65,35 @@ def threeD_drawBox(app, canvas, board, code, x1, y1, x2, y2, numRow, numCol):
             x1 + colWidth * (numCol + 1),
             y1 + colWidth * (numRow + 1),
             fill = "light blue", outline = "light blue")
+    elif board[numRow][numCol] == 'ansp':
+        canvas.create_rectangle(
+            x1 + colWidth * numCol,
+            y1 + rowWidth * numRow,
+            x1 + colWidth * (numCol + 1),
+            y1 + colWidth * (numRow + 1),
+            fill = "light blue", outline = "light blue")
+        if app.finish3D:
+            canvas.create_rectangle(
+                x1 + colWidth * numCol,
+                y1 + rowWidth * numRow,
+                x1 + colWidth * (numCol + 1),
+                y1 + colWidth * (numRow + 1),
+                fill = "pink")
+        if app.player == 6:
+            canvas.create_oval(
+                x1 + colWidth * numCol,
+                y1 + rowWidth * numRow,
+                x1 + colWidth * (numCol + 1),
+                y1 + colWidth * (numRow + 1),
+                fill = "red")
+        else:
+            cx = (2 * x1 + colWidth * (2 * numCol + 1))/2
+            cy = (2 * y1 + rowWidth * (2 * numRow + 1))/2
+            size = colWidth / 300 
+            image = app.players[app.player]
+            player = app.scaleImage(image, size)
+            canvas.create_image(cx, cy, 
+                            image=ImageTk.PhotoImage(player))
 
 # returns the horizontal cross-section of the board
 def threeD_zSection(app):
@@ -138,7 +131,6 @@ def threeD_mousePressed(app, event):
 
 # does action based on the key that is pressed
 def threeD_keyPressed(app, event):
-    print(event.key)
     if (app.input3D.type and event.key.isdigit() and len(event.key) == 1):
         if len(app.input3D.text) >= 3:
             app.input3D.text = app.input3D.text[1:]
@@ -209,11 +201,12 @@ def threeD_reset(app):
 # when the generate button is pressed 
 def threeD_generateMaze(app):
     app.generateMazeButton3D.pressed = False
-    if int(app.input3D.text) > 35 or int(app.input3D.text) <= 1:
-        app.error3D = True
-        return
     if len(app.input3D.text) == 0:
             app.testMaze3D = threeDMaze(app.prevSize3D, app.prevSize3D, app.prevSize3D, 100)
+    elif int(app.input3D.text) > 35 or int(app.input3D.text) < 1:
+        app.error3D = True
+        app.input3D.text = ""
+        return
     else:
         app.testMaze3D = threeDMaze(int(app.input3D.text), int(app.input3D.text),
                                          int(app.input3D.text), 100)
@@ -225,7 +218,6 @@ def threeD_generateMaze(app):
     app.board3D[len(app.board3D)-2][len(app.board3D[0])-2][len(app.board3D[0][0])-2] = 'e'
     # the board with player
     app.boardP3D = copy.deepcopy(app.board3D)
-    # print3dList(app.board3D)
     app.pCol3D = 1
     app.pRow3D = 1
     app.pHeight3D = 1 
@@ -251,7 +243,6 @@ def threeD_timerFired(app):
     app.timePassed += 1
     threeD_reachedEnd(app)
     app.boardP3D = copy.deepcopy(app.board3D)
-    # print3dList(app.board)
     app.boardP3D[app.pHeight3D][app.pRow3D][app.pCol3D] = "p"
     if app.drawSolution3D == True:
         threeD_includeSolution(app)
@@ -282,7 +273,6 @@ def threeD_timerFired(app):
     if app.finish3D == True:
         if app.endRetry.pressed == True:
             app.endRetry.pressed = False
-            print("it is pressed")
             threeD_reset(app)
         if app.endBack.pressed == True:
             app.endBack.pressed = False
@@ -384,7 +374,7 @@ def threeD_solutionHelper(app, height, row, col):
 def threeD_includeSolution(app):
     for (height, row, col) in app.visited3D:
         if app.boardP3D[height][row][col] == "p":
-            app.boardP3D[height][row][col] = ("p", "ans")
+            app.boardP3D[height][row][col] = "ansp"
         else:
             app.boardP3D[height][row][col] = "ans"
 
